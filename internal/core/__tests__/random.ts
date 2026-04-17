@@ -1,66 +1,60 @@
 /**
  * Deterministic random test-fixture helpers.
  *
- * RECONSTRUCTED: the original `random.ts` was missing from the source repo
- * (cldr-engine-ng) — several tests imported `randgen`, `randomNumbers`, and
- * `randomStrings` from it, but the file did not exist and the tests were not
- * runnable there. These implementations are rebuilt from the call sites'
- * contracts:
- *
- *   randgen(seed)                    -> { next(): number } PRNG (mulberry32)
- *   randomNumbers(gen, count, max)  -> number[] in [0..max]
- *   randomStrings(gen, count, min, max) -> string[] lowercase ASCII, len [min..max]
- *
- * Values are deterministic per seed; tests never assert specific PRNG values,
- * only round-trip and invariants over the generated inputs.
+ * Restored from the author's originals (2025-08-28); they were missing from
+ * the old repo (cldr-engine-ng), so a reconstruction had briefly stood in.
+ * One change vs the author's copy: the stray debug `console.log` in
+ * `randomStrings` (and the discarded `gen()` draw it logged) was removed —
+ * it would have printed a line per string during the 1000-string search test.
  */
-
-export interface RandGen {
-  next(): number;
-}
 
 /**
- * Mulberry32: tiny, deterministic, seeded PRNG yielding floats in [0, 1).
+ * Seeded PRNG returning floats in [0, 1).
  */
-export const randgen = (seed: number): RandGen => {
-  let a = seed >>> 0;
-  return {
-    next: () => {
-      a = (a + 0x6d2b79f5) | 0;
-      let t = Math.imul(a ^ (a >>> 15), 1 | a);
-      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-    },
+export const randgen = (seed: number) => {
+  let a = 0x9e3779b9;
+  let b = 0x243f6a88;
+  let c = 0xb7e15162;
+  return () => {
+    a |= 0;
+    b |= 0;
+    c |= 0;
+    seed |= 0;
+    let t = (((a + b) | 0) + seed) | 0;
+    seed = (seed + 1) | 0;
+    a = b ^ (b >>> 9);
+    b = (c + (c << 3)) | 0;
+    c = (c << 21) | (c >>> 11);
+    c = (c + t) | 0;
+    return (t >>> 0) / 4294967296;
   };
 };
 
 /**
- * Returns `count` random integers in the inclusive range [0, max].
+ * Generate `count` random numbers from zero to `max` (exclusive).
  */
-export const randomNumbers = (gen: RandGen, count: number, max: number): number[] => {
-  const out: number[] = [];
+export const randomNumbers = (gen: () => number, count: number, max: number) => {
+  const res: number[] = [];
   for (let i = 0; i < count; i++) {
-    out.push(Math.floor(gen.next() * (max + 1)));
+    const n = (gen() * max) | 0;
+    res.push(n);
   }
-  return out;
+  return res;
 };
 
-const LETTERS = 26;
-const A = 97; // 'a'
-
 /**
- * Returns `count` random lowercase-ASCII strings with length in
- * the inclusive range [min, max].
+ * Generate `count` random strings whose lengths are randomly between
+ * `min` and `max` (inclusive), over lowercase ASCII a-z.
  */
-export const randomStrings = (gen: RandGen, count: number, min: number, max: number): string[] => {
-  const out: string[] = [];
+export const randomStrings = (gen: () => number, count: number, min: number, max: number) => {
+  const range = max - min + 1;
+  const keys: string[] = [];
   for (let i = 0; i < count; i++) {
-    const len = min + Math.floor(gen.next() * (max - min + 1));
-    let s = '';
-    for (let j = 0; j < len; j++) {
-      s += String.fromCharCode(A + Math.floor(gen.next() * LETTERS));
-    }
-    out.push(s);
+    const len = Math.floor(gen() * range) + min;
+    const key = randomNumbers(gen, len, 26)
+      .map((c) => String.fromCharCode(c + 0x61))
+      .join('');
+    keys.push(key);
   }
-  return out;
+  return keys;
 };
