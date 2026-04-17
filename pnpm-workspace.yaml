@@ -1,0 +1,8 @@
+packages:
+  - 'internal/*'
+  - 'packages/*'
+  - 'examples/*'
+
+# pnpm 11: allowlist for packages that may run install scripts (esbuild needs its postinstall)
+allowBuilds:
+  esbuild: true
