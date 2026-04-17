@@ -20,6 +20,12 @@ importers:
 
   internal/core: {}
 
+  internal/data-pipeline:
+    dependencies:
+      '@cldr/internal-core':
+        specifier: workspace:*
+        version: link:../core
+
 packages:
 
   '@esbuild/aix-ppc64@0.28.2':

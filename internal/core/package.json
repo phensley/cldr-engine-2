@@ -4,5 +4,11 @@
   "private": true,
   "type": "module",
   "description": "Workspace-private leaf package: pack-format codecs (wire-format types/codecs). Wired via workspace path; inlined into public packages at build time. Never published.",
-  "license": "Apache-2.0"
+  "license": "Apache-2.0",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  }
 }
