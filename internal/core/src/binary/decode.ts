@@ -69,3 +69,30 @@ export const decodeX85GVE16 = (input: string): Uint16Array => {
   }
   return out!;
 };
+
+/**
+ * Bare X85 decode: translate an X85 string back into bytes (no GVE16
+ * wrapper). Input length is always a multiple of 5 (the encoder pads to
+ * 4-byte groups); every 5 characters yield 4 bytes.
+ *
+ * The encoder's zero padding is restored, so the returned buffer is
+ * ceil(N/4)*4 bytes: callers carrying the true length elsewhere (e.g. a
+ * pool's offsets sentinel) should slice to it.
+ */
+export const decodeX85 = (input: string): Uint8Array => {
+  const out = new Uint8Array((input.length / 5) * 4);
+  let v = 0;
+  let o = 0;
+  const ilen = input.length;
+  for (let i = 0; i < ilen; i++) {
+    const c = input.charCodeAt(i);
+    v = v * 85 + ((c > 92 ? c - 1 : c) - 40);
+    if ((i + 1) % 5 === 0) {
+      for (const shift of [24, 16, 8, 0]) {
+        out[o++] = (v >>> shift) & 255;
+      }
+      v = 0;
+    }
+  }
+  return out;
+};
