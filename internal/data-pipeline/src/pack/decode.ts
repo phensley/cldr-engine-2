@@ -12,10 +12,16 @@ export const decodePool = (pack: PoolPack): string[] => {
   const offsets = Array.from(decodeX85GVE16(pack.offsets));
   const out: string[] = [];
   if (pack.codec === 'utf16') {
-    // Pool data ≤ 65535 u16 → spread stays under the ~64k call-arg limit.
+    // Chunk the spread so a full 65535-unit segment stays under the call
+    // arg limit (String.fromCharCode caps out near 64k args).
     const data = Array.from(decodeX85GVE16(pack.data));
     for (let i = 0; i < offsets.length - 1; i++) {
-      out.push(String.fromCharCode(...data.slice(offsets[i], offsets[i + 1])));
+      const slice = data.slice(offsets[i], offsets[i + 1]);
+      let s = '';
+      for (let j = 0; j < slice.length; j += 8192) {
+        s += String.fromCharCode(...slice.slice(j, j + 8192));
+      }
+      out.push(s);
     }
     return out;
   }

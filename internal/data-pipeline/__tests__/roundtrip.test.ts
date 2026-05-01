@@ -3,8 +3,7 @@
  * exhaustive equality with the source — for BOTH pool codecs (the S1-M4
  * benchmark decides which one ships).
  */
-import { lookupTrieValue } from '../src/index.js';
-import { compileDataset, decodeLocalePack, decodeNumericPack, miniCldr, toU16 } from '../src/index.js';
+import { compileDataset, decodeChunkedPool, decodeLocalePack, decodeNumericPack, encodeChunkedPool, encodePool, lookupTrieValue, miniCldr, toU16 } from '../src/index.js';
 import type { Dataset } from '../src/index.js';
 
 const CODECS = ['utf8', 'utf16'] as const;
@@ -102,5 +101,28 @@ describe('compile determinism', () => {
   it('rejects non-parallel numeric tables', () => {
     const bad: Dataset = { locales: {}, numeric: { keys: ['a'], values: [] } };
     expect(() => compileDataset(bad)).toThrow(/not parallel/);
+  });
+});
+
+describe('chunked pools (16-bit overflow path)', () => {
+  it('preserves strings across segment boundaries', () => {
+    const strings = Array.from({ length: 3000 }, (_, i) => `Name${String(i).padStart(4, '0')}`);
+    for (const codec of CODECS) {
+      const chunked = encodeChunkedPool(strings, codec, /* force splitting */ 4096);
+      expect(chunked.segments.length).toBeGreaterThan(1);
+      expect(decodeChunkedPool(chunked)).toEqual(strings);
+    }
+  });
+
+  it('produces a single segment when everything fits', () => {
+    const chunked = encodeChunkedPool(['a', 'b'], 'utf8');
+    expect(chunked.segments).toHaveLength(1);
+    expect(decodeChunkedPool(chunked)).toEqual(['a', 'b']);
+  });
+
+  it('single-pool encoding overflows at >65535 offsets (guard throws)', () => {
+    const many = Array.from({ length: 40000 }, (_, i) => `x${i}`);
+    // utf8: ~3-6 bytes per string → data stream > 65535 → offsets overflow
+    expect(() => encodePool(many, 'utf8')).toThrow(/outside the u16 wire domain/);
   });
 });
