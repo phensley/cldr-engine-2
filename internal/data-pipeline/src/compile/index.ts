@@ -2,7 +2,13 @@
  * The pipeline entry: dataset → CompiledDataset (packs, one per locale).
  */
 import type { Dataset } from '../dataset/types.js';
-import type { CompiledDataset, PoolCodec } from '../pack/types.js';
+import type { LocalePack, NumericPack, PoolCodec } from '../pack/types.js';
+
+/** Complete compile output: one LocalePack per locale + one NumericPack. */
+export interface CompiledDataset {
+  locale: Record<string, LocalePack>;
+  numeric: NumericPack;
+}
 import { compileLocale } from './locale.js';
 import { compileNumeric } from './numeric.js';
 

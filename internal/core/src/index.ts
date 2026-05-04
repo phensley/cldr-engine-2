@@ -10,3 +10,5 @@ export * from './binary/decode.js';
 export * from './trie/build.js';
 export * from './trie/encode.js';
 export * from './trie/search.js';
+export * from './pack/types.js';
+export * from './pack/decode.js';
