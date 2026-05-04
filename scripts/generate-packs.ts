@@ -22,16 +22,24 @@ import {
 } from '../internal/data-pipeline/src/index.js';
 
 const codec = process.argv.includes('--utf16') ? 'utf16' : 'utf8';
-const outDir = join(dirname(fileURLToPath(import.meta.url)), '../internal/data-pipeline/generated');
+const scriptDir = dirname(fileURLToPath(import.meta.url));
+const outDirs = [
+  join(scriptDir, '../internal/data-pipeline/generated'),
+  join(scriptDir, '../packages/cldr/src/packs'),
+];
 
 const compiled = compileDataset(miniCldr, { poolCodec: codec });
-mkdirSync(outDir, { recursive: true });
-
-for (const [locale, pack] of Object.entries(compiled.locale)) {
-  writeFileSync(join(outDir, `${localeIdentifier(locale)}.ts`), renderLocaleModule(locale, pack));
+for (const outDir of outDirs) {
+  mkdirSync(outDir, { recursive: true });
+  for (const [locale, pack] of Object.entries(compiled.locale)) {
+    writeFileSync(join(outDir, `${localeIdentifier(locale)}.ts`), renderLocaleModule(locale, pack));
+  }
+  writeFileSync(join(outDir, 'numeric.ts'), renderNumericModule(compiled.numeric));
 }
-writeFileSync(join(outDir, 'numeric.ts'), renderNumericModule(compiled.numeric));
+// pipeline keeps the aggregate modules (its own artifact); the runtime
+// package addresses packs per-locale through its exports map instead
+const outDir = outDirs[0];
 writeFileSync(join(outDir, 'packs.ts'), renderPacksModule(Object.keys(compiled.locale)));
 writeFileSync(join(outDir, 'index.ts'), renderIndexModule());
 
-console.log(`generated ${Object.keys(compiled.locale).length} locale packs + numeric (codec: ${codec}) → ${outDir}`);
+console.log(`generated ${Object.keys(compiled.locale).length} locale packs + numeric (codec: ${codec}) → ${outDirs.join(', ')}`);

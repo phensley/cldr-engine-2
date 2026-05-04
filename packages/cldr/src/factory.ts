@@ -12,8 +12,11 @@
  * sub-namespace).
  */
 import type { DecimalInstance, DecimalSelection } from './api.js';
+import type { CurrencyInstance, CurrencySelection } from './api.js';
+import type { DecodedLocalePack } from '@cldr/internal-core';
 import { parseDecimal } from './decimal/state.js';
 import type { DecimalArg, DecimalState } from './decimal/state.js';
+import type { CurrencyState } from './currency/state.js';
 
 type AnyFn = (state: unknown, ...args: unknown[]) => unknown;
 
@@ -60,5 +63,34 @@ export const makeDecimalFactory = <M extends DecimalSelection>(selected: M) => {
 
   return {
     new: (raw: DecimalArg): DecimalInstance<M> => makeInstance(parseDecimal(raw)),
+  };
+};
+
+/**
+ * makeCurrencyFactory — assembles a Currency factory per locale from the
+ * selected method functions. `pack` is the locale's decoded pack; the
+ * client caches one factory per (locale × selection).
+ */
+export const makeCurrencyFactory = <M extends CurrencySelection>(pack: DecodedLocalePack, selected: M) => {
+  const top: Record<string, unknown> = {};
+  for (const [key, fn] of Object.entries(selected)) {
+    if (typeof fn === 'function') {
+      top[key] = function (this: { __s: CurrencyState }, ...args: unknown[]) {
+        return (fn as AnyFn)(this.__s, ...args);
+      };
+    }
+  }
+  Object.freeze(top);
+
+  return {
+    new: (amount: DecimalArg, code: string): CurrencyInstance<M> => {
+      const inst = Object.create(top) as Record<string, unknown> & { __s: CurrencyState };
+      Object.defineProperty(inst, '__s', {
+        value: { pack, amount: parseDecimal(amount), code } satisfies CurrencyState,
+        enumerable: false,
+        writable: true,
+      });
+      return inst as unknown as CurrencyInstance<M>;
+    },
   };
 };

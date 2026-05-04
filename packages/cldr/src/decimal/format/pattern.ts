@@ -137,8 +137,9 @@ export const formatPattern = (state: DecimalState, pattern: string, options?: Fo
   if (maxFrac > 0 && (frac !== '' || info.minFrac > 0)) {
     fracStr = '.' + frac.padEnd(info.minFrac, '0');
   }
-  const sign = s.sign === -1 ? '-' : '';
-  const body = sign + (info.group ? groupDigits(int) : int) + fracStr;
+  const body = (info.group ? groupDigits(int) : int) + fracStr;
+  // minus sign leads the whole output (before any symbol/prefix) — the
+  // separate CLDR negative-pattern forms are out of mini scope
   const subst = (t: string) => (options?.symbol !== undefined ? t.replace(/¤/g, options.symbol) : t);
-  return subst(info.prefix) + body + subst(info.suffix);
+  return (s.sign === -1 ? '-' : '') + subst(info.prefix) + body + subst(info.suffix);
 };

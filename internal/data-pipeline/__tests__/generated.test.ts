@@ -12,7 +12,6 @@ import {
   compileDataset,
   decodeLocalePack,
   decodeNumericPack,
-  localeIdentifier,
   lookupTrieValue,
   miniCldr,
   renderIndexModule,
@@ -23,18 +22,22 @@ import {
 import { packs, numeric } from '../generated/index.js';
 
 const generatedDir = join(dirname(fileURLToPath(import.meta.url)), '../generated');
+const runtimePacksDir = join(dirname(fileURLToPath(import.meta.url)), '../../../packages/cldr/src/packs');
+
+const PACK_STEMS = ['en', 'fr', 'de', 'es419', 'numeric'];
 
 describe('committed pack assets', () => {
   it('are fresh: file contents equal a fresh render (default codec)', () => {
     const compiled = compileDataset(miniCldr, { poolCodec: 'utf8' });
 
-    for (const [locale, pack] of Object.entries(compiled.locale)) {
-      const file = join(generatedDir, `${localeIdentifier(locale)}.ts`);
-      expect(readFileSync(file, 'utf8'), `${locale}.ts is stale — run pnpm generate:packs`).toBe(
-        renderLocaleModule(locale, pack),
-      );
+    for (const stem of PACK_STEMS) {
+      for (const dir of [generatedDir, runtimePacksDir]) {
+        expect(readFileSync(join(dir, `${stem}.ts`), 'utf8'), `${stem}.ts is stale — run pnpm generate:packs`).toBe(
+          stem === 'numeric' ? renderNumericModule(compiled.numeric) : renderLocaleModule(stem === 'es419' ? 'es-419' : stem, compiled.locale[stem === 'es419' ? 'es-419' : stem]),
+        );
+      }
     }
-    expect(readFileSync(join(generatedDir, 'numeric.ts'), 'utf8')).toBe(renderNumericModule(compiled.numeric));
+    // pipeline-only aggregates
     expect(readFileSync(join(generatedDir, 'packs.ts'), 'utf8')).toBe(renderPacksModule(Object.keys(compiled.locale)));
     expect(readFileSync(join(generatedDir, 'index.ts'), 'utf8')).toBe(renderIndexModule());
   });

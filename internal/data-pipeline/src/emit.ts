@@ -17,7 +17,7 @@ export const renderLocaleModule = (locale: string, pack: LocalePack): string =>
   `${HEADER}${PACK_TYPE_IMPORT}export const ${localeIdentifier(locale)}: LocalePack = ${JSON.stringify(pack, null, 2)};\n`;
 
 export const renderNumericModule = (numeric: NumericPack): string =>
-  `${HEADER}\nimport type { NumericPack } from '../src/pack/types.js';\n\nexport const numeric: NumericPack = ${JSON.stringify(numeric, null, 2)};\n`;
+  `${HEADER}\nimport type { NumericPack } from '@cldr/internal-core';\n\nexport const numeric: NumericPack = ${JSON.stringify(numeric, null, 2)};\n`;
 
 /**
  * Aggregate module mapping every locale tag to its pack, e.g.:
