@@ -170,6 +170,9 @@ export const generate = (config: CldrConfig): string => {
   const lines: string[] = [HEADER];
   const runtime = ['createCldr', ...[...factories].sort()];
   lines.push(`import { ${runtime.join(', ')} } from '@phensley/cldr';`);
+  if (lazy) {
+    lines.push("import type { Cldr } from '@phensley/cldr';");
+  }
   for (const ref of refs) {
     lines.push(`import { ${ref.exportName} } from '${ref.specifier}';`);
   }
@@ -183,8 +186,10 @@ export const generate = (config: CldrConfig): string => {
   const usePacks = localeFeature;
   if (usePacks) {
     lines.push('', 'import type { DecodedLocalePack } from \'@phensley/cldr\';');
-    for (const tag of localeTags) {
-      lines.push(`import { ${localeIdentifier(tag)} } from '@phensley/cldr/packs/${localeIdentifier(tag)}';`);
+    if (!lazy) {
+      for (const tag of localeTags) {
+        lines.push(`import { ${localeIdentifier(tag)} } from '@phensley/cldr/packs/${localeIdentifier(tag)}';`);
+      }
     }
   }
 
@@ -199,7 +204,7 @@ export const generate = (config: CldrConfig): string => {
   const buildParam = usePacks ? '(pack: DecodedLocalePack | undefined)' : '()';
   lines.push('', `const build = ${buildParam} => ({`, ...buildParts.map((p) => `  ${p}`), '});');
 
-  lines.push('', 'export const cldr = createCldr({', `  lazy: ${lazy},`, `  locales: ${JSON.stringify(localeTags)} as const,`);
+  lines.push('', lazy ? 'const client = createCldr({' : 'export const cldr = createCldr({', `  lazy: ${lazy},`, `  locales: ${JSON.stringify(localeTags)} as const,`);
   if (usePacks) {
     const packs = localeTags.map((t) => {
       const id = localeIdentifier(t);
@@ -210,6 +215,23 @@ export const generate = (config: CldrConfig): string => {
     lines.push(`  packs: { ${packs.join(', ')} },`);
   }
   lines.push('  build,', '});', '');
+  if (lazy) {
+    // Lazy mode: locale is an open set at runtime, so the exported client
+    // widens the narrowed internal one; unknown tags still throw in
+    // resolveLocale with the available list.
+    const union = localeTags.map((t) => JSON.stringify(t)).join(' | ');
+    lines.push(
+      'export const cldr: Cldr<string, ReturnType<typeof build>> = {',
+      '  get(locale) {',
+      `    return client.get(locale as ${union});`,
+      '  },',
+      '  preload(locale) {',
+      `    return client.preload(locale as ${union});`,
+      '  },',
+      '};',
+      '',
+    );
+  }
   return lines.join('\n');
 };
 

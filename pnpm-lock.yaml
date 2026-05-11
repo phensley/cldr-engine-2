@@ -30,6 +30,15 @@ importers:
         specifier: workspace:*
         version: link:../../packages/cldr-generate
 
+  examples/lazy-app:
+    dependencies:
+      '@phensley/cldr':
+        specifier: workspace:*
+        version: link:../../packages/cldr
+      '@phensley/cldr-generate':
+        specifier: workspace:*
+        version: link:../../packages/cldr-generate
+
   internal/core: {}
 
   internal/data-pipeline:
