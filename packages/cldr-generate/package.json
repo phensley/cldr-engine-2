@@ -1,0 +1,21 @@
+{
+  "name": "@phensley/cldr-generate",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Generator (S2 prototype): reads a consumer's cldr.config.ts + the runtime manifest, emits a literal, already-minimal cldr.gen.ts. Node-only; runs at the consumer's build time (Prisma-CLI-style).",
+  "license": "Apache-2.0",
+  "bin": {
+    "cldr-generate": "./bin/cldr-generate.mjs"
+  },
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./src/index.ts"
+    }
+  },
+  "dependencies": {
+    "@phensley/cldr": "workspace:*",
+    "tsx": "^4.23.0"
+  }
+}

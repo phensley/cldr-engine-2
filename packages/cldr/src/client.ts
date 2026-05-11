@@ -22,10 +22,14 @@ export interface CldrConfig<L extends string, C> {
   lazy: boolean;
   /** Configured locale tags; the generated client emits a literal list. */
   locales: readonly L[];
-  /** Eager: LocalePack per locale. Lazy: `() => import(...)` per locale. */
-  packs: Record<L, LocalePack | (() => Promise<LocalePack>)>;
+  /**
+   * Eager: LocalePack per locale. Lazy: `() => import(...)` per locale.
+   * Absent entirely when no selected feature needs locale data (a
+   * decimal-only client ships zero pack bytes).
+   */
+  packs?: Record<L, LocalePack | (() => Promise<LocalePack>)>;
   /** Assemble the per-locale feature namespace once, from decoded data. */
-  build: (pack: DecodedLocalePack, locale: L) => C;
+  build: (pack: DecodedLocalePack | undefined, locale: L) => C;
 }
 
 export interface Cldr<L extends string, C> {
@@ -46,8 +50,8 @@ export const createCldr = <L extends string, C>(config: CldrConfig<L, C>): Cldr<
       }
       let context = contexts.get(tag);
       if (context === undefined) {
-        let d = decoded.get(tag);
-        if (d === undefined) {
+        let d: DecodedLocalePack | undefined = decoded.get(tag);
+        if (d === undefined && config.packs !== undefined) {
           d = decodeLocalePack(config.packs[tag] as LocalePack);
           decoded.set(tag, d);
         }
@@ -58,7 +62,7 @@ export const createCldr = <L extends string, C>(config: CldrConfig<L, C>): Cldr<
     },
     async preload(locale: L): Promise<void> {
       const tag = resolveLocale(locale, config.locales);
-      if (!config.lazy || loaded.has(tag)) {
+      if (config.packs === undefined || !config.lazy || loaded.has(tag)) {
         return;
       }
       const loader = config.packs[tag] as () => Promise<LocalePack>;

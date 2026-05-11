@@ -1,0 +1,12 @@
+{
+  "name": "eager-app",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "S2 consumer example: fixed locale set (eager mode). cldr.config.ts → generated cldr.gen.ts, committed; the bundle-proof harness (S2-M5) bundles src/app.ts.",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@phensley/cldr": "workspace:*",
+    "@phensley/cldr-generate": "workspace:*"
+  }
+}

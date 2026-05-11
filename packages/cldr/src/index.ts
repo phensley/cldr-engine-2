@@ -11,3 +11,4 @@ export * from './api.js';
 export { makeCurrencyFactory, makeDecimalFactory } from './factory.js';
 export { createCldr } from './client.js';
 export type { Cldr, CldrConfig } from './client.js';
+export type { DecodedLocalePack } from '@cldr/internal-core';

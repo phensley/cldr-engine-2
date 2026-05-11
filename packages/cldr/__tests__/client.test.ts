@@ -13,9 +13,10 @@ import { en } from '@phensley/cldr/packs/en';
 import { es419 } from '@phensley/cldr/packs/es419';
 import { fr } from '@phensley/cldr/packs/fr';
 
-const build = (pack: Parameters<typeof makeCurrencyFactory>[0]) => ({
+// mirrors the emitted client: packs may be absent (decimal-only configs)
+const build = (pack: Parameters<typeof makeCurrencyFactory>[0] | undefined) => ({
   decimal: makeDecimalFactory({ compare, min, format: { scientific } }),
-  currency: makeCurrencyFactory(pack, { format, symbol, fractionDigits }),
+  currency: makeCurrencyFactory(pack!, { format, symbol, fractionDigits }),
 });
 
 describe('createCldr — eager mode', () => {
