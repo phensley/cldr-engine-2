@@ -29,5 +29,6 @@
   },
   "dependencies": {
     "@cldr/internal-core": "workspace:*"
-  }
+  },
+  "sideEffects": false
 }

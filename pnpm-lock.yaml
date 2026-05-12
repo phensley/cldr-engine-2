@@ -8,9 +8,18 @@ importers:
 
   .:
     devDependencies:
+      '@phensley/cldr':
+        specifier: workspace:*
+        version: link:packages/cldr
+      '@phensley/cldr-generate':
+        specifier: workspace:*
+        version: link:packages/cldr-generate
       '@types/node':
         specifier: ^24.0.0
         version: 24.13.3
+      esbuild:
+        specifier: ^0.28.2
+        version: 0.28.2
       tsx:
         specifier: ^4.19.0
         version: 4.23.12

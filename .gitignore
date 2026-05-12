@@ -3,3 +3,4 @@ lib/
 dist/
 *.tsbuildinfo
 .vitest/
+.bundle-proof/
