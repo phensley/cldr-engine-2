@@ -1,34 +1,46 @@
 {
   "name": "@phensley/cldr",
   "version": "0.0.0",
-  "private": true,
   "type": "module",
-  "description": "Runtime (prototype): reference implementation + generated-client runtime. Isomorphic, tree-shakable; pack assets inlined from the data pipeline's build output. S2 selection-mechanism subject.",
+  "description": "Runtime (prototype): reference implementation + generated-client runtime. Isomorphic, tree-shakable; pack assets inlined from the data pipeline's build output. Per-method subpaths are what the generated client imports; ./manifest is generator-only (node-gated).",
   "license": "Apache-2.0",
+  "sideEffects": false,
+  "files": [
+    "dist"
+  ],
+  "publishConfig": {
+    "access": "public"
+  },
   "exports": {
     ".": {
-      "types": "./src/index.ts",
-      "default": "./src/index.ts"
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
     },
     "./decimal/*": {
-      "types": "./src/decimal/*.ts",
-      "default": "./src/decimal/*.ts"
+      "types": "./dist/decimal/*.d.ts",
+      "default": "./dist/decimal/*.js"
     },
     "./currency/*": {
-      "types": "./src/currency/*.ts",
-      "default": "./src/currency/*.ts"
+      "types": "./dist/currency/*.d.ts",
+      "default": "./dist/currency/*.js"
     },
     "./packs/*": {
-      "types": "./src/packs/*.ts",
-      "default": "./src/packs/*.ts"
+      "types": "./dist/packs/*.d.ts",
+      "default": "./dist/packs/*.js"
     },
     "./manifest": {
-      "types": "./src/manifest.ts",
-      "default": "./src/manifest.ts"
+      "node": {
+        "types": "./dist/manifest.d.ts",
+        "default": "./dist/manifest.js"
+      }
     }
   },
-  "dependencies": {
+  "devDependencies": {
     "@cldr/internal-core": "workspace:*"
   },
-  "sideEffects": false
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "engines": {
+    "node": ">=20.0.0"
+  }
 }

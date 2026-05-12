@@ -3,7 +3,10 @@
     "target": "esnext",
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
-    "lib": ["esnext", "dom"],
+    "lib": [
+      "esnext",
+      "dom"
+    ],
     "strict": true,
     "noImplicitReturns": true,
     "noUnusedLocals": true,
@@ -11,8 +14,19 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,
-    "types": ["vitest/globals", "node"],
+    "types": [
+      "vitest/globals",
+      "node"
+    ],
     "noEmit": true
   },
-  "include": ["internal", "packages", "examples"]
+  "include": [
+    "internal",
+    "packages",
+    "examples"
+  ],
+  "exclude": [
+    "**/dist",
+    "**/.bundle-proof"
+  ]
 }

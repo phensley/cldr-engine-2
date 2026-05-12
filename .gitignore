@@ -4,3 +4,6 @@ dist/
 *.tsbuildinfo
 .vitest/
 .bundle-proof/
+packages/*/dist/
+packages/cldr/src/_core/
+.verdaccio/
