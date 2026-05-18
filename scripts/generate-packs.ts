@@ -1,12 +1,12 @@
 /**
- * Regenerate the committed pack assets under internal/data-pipeline/generated.
+ * Regenerate the committed pack assets:
  *
- *   pnpm generate:packs            → default pool codec (utf8)
- *   pnpm generate:packs -- utf16   → utf16 pools (benchmark comparison)
+ *   pnpm generate:packs
  *
- * Deterministic: regenerating after an unchanged dataset produces no diff.
- * The generated files are committed; __tests__/generated.test.ts asserts
- * they stay fresh (=== a fresh render).
+ * v0.1: pools ship as array literals (notes/pool-rebaseline.md); only
+ * numeric streams go through the codec chain. Deterministic: regenerating
+ * after an unchanged dataset produces no diff. The generated files are
+ * committed; __tests__/generated.test.ts asserts they stay fresh.
  */
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
@@ -21,14 +21,13 @@ import {
   renderPacksModule,
 } from '../internal/data-pipeline/src/index.js';
 
-const codec = process.argv.includes('--utf16') ? 'utf16' : 'utf8';
 const scriptDir = dirname(fileURLToPath(import.meta.url));
 const outDirs = [
   join(scriptDir, '../internal/data-pipeline/generated'),
   join(scriptDir, '../packages/cldr/src/packs'),
 ];
 
-const compiled = compileDataset(miniCldr, { poolCodec: codec });
+const compiled = compileDataset(miniCldr);
 for (const outDir of outDirs) {
   mkdirSync(outDir, { recursive: true });
   for (const [locale, pack] of Object.entries(compiled.locale)) {
@@ -42,4 +41,4 @@ const outDir = outDirs[0];
 writeFileSync(join(outDir, 'packs.ts'), renderPacksModule(Object.keys(compiled.locale)));
 writeFileSync(join(outDir, 'index.ts'), renderIndexModule());
 
-console.log(`generated ${Object.keys(compiled.locale).length} locale packs + numeric (codec: ${codec}) → ${outDirs.join(', ')}`);
+console.log(`generated ${Object.keys(compiled.locale).length} locale packs + numeric (pool arrays) → ${outDirs.join(', ')}`);

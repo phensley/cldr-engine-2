@@ -27,8 +27,59 @@ import { gzipSync } from 'node:zlib';
 import { writeFileSync } from 'node:fs';
 import { performance } from 'node:perf_hooks';
 
-import { decodeChunkedPool, decodeX85GVE16, encodeChunkedPool, packU16 } from '../internal/data-pipeline/src/index.js';
-import type { ChunkedPoolPack, PoolPack } from '../internal/data-pipeline/src/index.js';
+import { decodeX85, decodeX85GVE16, encodeGVE16, encodeX85, packU16, toU16 } from '../internal/data-pipeline/src/index.js';
+
+/**
+ * The v0 chain transport, self-contained (the pipeline no longer ships it
+ * — this benchmark compares against the format that the re-baseline
+ * replaces).
+ */
+interface ChainSegment {
+  offsets: string;
+  data: string;
+}
+const encodeChainPool = (strings: string[], maxBytes: number): ChainSegment[] => {
+  const out: ChainSegment[] = [];
+  let current: string[] = [];
+  let bytes = 0;
+  for (const s of strings) {
+    const b = new TextEncoder().encode(s).length;
+    if (current.length > 0 && bytes + b > maxBytes) {
+      out.push(encodeChainSegment(current));
+      current = [];
+      bytes = 0;
+    }
+    current.push(s);
+    bytes += b;
+  }
+  out.push(encodeChainSegment(current));
+  return out;
+};
+const encodeChainSegment = (strings: string[]): ChainSegment => {
+  const bytes: number[] = [];
+  const offsets: number[] = [];
+  for (const s of strings) {
+    offsets.push(bytes.length);
+    for (const c of new TextEncoder().encode(s)) {
+      bytes.push(c);
+    }
+  }
+  offsets.push(bytes.length);
+  return { offsets: encodeX85(encodeGVE16(toU16(offsets))), data: encodeX85(new Uint8Array(bytes)) };
+};
+const decodeChainPool = (segments: ChainSegment[]): string[] => {
+  const out: string[] = [];
+  const utf8 = new TextDecoder('utf-8');
+  for (const seg of segments) {
+    const offsets = Array.from(decodeX85GVE16(seg.offsets));
+    const bytes = decodeX85(seg.data);
+    for (let i = 0; i < offsets.length - 1; i++) {
+      out.push(utf8.decode(bytes.subarray(offsets[i], offsets[i + 1])));
+    }
+  }
+  return out;
+};
+
 
 // ---------------------------------------------------------------------------
 // deterministic, representative name pools
@@ -145,7 +196,7 @@ const time = (fn: () => void, minMs = 150): number => {
   return elapsed / n;
 };
 
-const decodeLiteral = (segments: PoolPack[], all: string[]) => {
+const decodeLiteral = (segments: Array<{ offsets: string; data: string }>, all: string[]) => {
   const out: string[] = [];
   for (let s = 0; s < segments.length; s++) {
     const offsets = Array.from(decodeX85GVE16(segments[s].offsets));
@@ -170,9 +221,9 @@ for (const [label, strings] of POOLS) {
   const rawBytes = bytesOf(strings.join(''));
   const jsonText = jsonModule(strings);
   const literalSegs = segmentLiteral(strings, 65535);
-  const chainSegs = encodeChunkedPool(strings, 'utf8');
+  const chainSegs = { segments: encodeChainPool(strings, 65535) };
 
-  const literalSegsText = JSON.stringify({ codec: 'literal', segments: literalSegs } as ChunkedPoolPack);
+  const literalSegsText = JSON.stringify({ codec: 'literal', segments: literalSegs });
   const chainText = JSON.stringify(chainSegs);
 
   const j = { b: bytesOf(jsonText), g: gz(jsonText) };
@@ -186,7 +237,7 @@ for (const [label, strings] of POOLS) {
 
   // decode perf on the real transports (>= 30 KB pools)
   if (rawBytes >= 30000) {
-    const chainDecode = time(() => decodeChunkedPool(chainSegs));
+    const chainDecode = time(() => decodeChainPool(chainSegs.segments));
     const literalDecode = time(() => decodeLiteral(literalSegs, strings));
     perf.push([label, (chainDecode * 1000).toFixed(1), (literalDecode * 1000).toFixed(1), (chainDecode / literalDecode).toFixed(1) + 'x']);
   }

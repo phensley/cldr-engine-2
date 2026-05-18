@@ -1,16 +1,16 @@
 /**
- * Compile the locale-independent numeric table: keys pool + GVE16 values.
+ * Compile the locale-independent numeric table: keys array + GVE16 values.
  */
 import type { NumericTable } from '../dataset/types.js';
-import type { NumericPack, PoolCodec } from '../pack/types.js';
-import { encodePool, packU16 } from './pool.js';
+import type { NumericPack } from '../pack/types.js';
+import { packU16 } from './pool.js';
 
-export const compileNumeric = (numeric: NumericTable, codec: PoolCodec): NumericPack => {
+export const compileNumeric = (numeric: NumericTable): NumericPack => {
   if (numeric.keys.length !== numeric.values.length) {
     throw new Error(`numeric table is not parallel: ${numeric.keys.length} keys vs ${numeric.values.length} values`);
   }
   return {
-    keys: encodePool(numeric.keys, codec),
+    keys: [...numeric.keys],
     values: packU16(numeric.values),
   };
 };

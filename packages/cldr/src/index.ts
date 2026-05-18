@@ -14,4 +14,4 @@ export type { Cldr, CldrConfig } from './client.js';
 export type { DecodedLocalePack } from '@cldr/internal-core';
 // wire-format types re-exported publicly so every per-module .d.ts can
 // reference them from a public entry (rollup-plugin-dts requirement)
-export type { LocalePack, NumericPack, PoolPack, PoolCodec } from '@cldr/internal-core';
+export type { LocalePack, NumericPack } from '@cldr/internal-core';

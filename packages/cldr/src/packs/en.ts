@@ -2,11 +2,28 @@
 
 import type { LocalePack } from '@cldr/internal-core';
 export const en: LocalePack = {
-  "pool": {
-    "codec": "utf8",
-    "offsets": "((((=(((+3-63o(2[V<]<(ys?Bkr+:M19dX(((((",
-    "data": "3`OXwML8n2IrrERGC}`/=]B|j?;N{[KPP.i=aS8VG>5zEMJkZ1qllMoN-T0?HVfeRKPc=QH[K_zKS)nsH?3PKMJI(9?u}cPKNs]}M/w-eL21O}CNtTuHYtw^It>XwKn-RtItuw{2I1HrMJnV8]^hsmQ}myW"
-  },
+  "pool": [
+    "$",
+    "Australia",
+    "Brazil",
+    "CA$",
+    "CHF",
+    "Canada",
+    "China",
+    "Côte d’Ivoire",
+    "France",
+    "Germany",
+    "India",
+    "Italy",
+    "Japan",
+    "Russia",
+    "Spain",
+    "United Kingdom",
+    "United States",
+    "£",
+    "¥",
+    "€"
+  ],
   "territories": {
     "trie": "((((q(,xWV=<Br.=qdI(3)CmP3a>|f?pCrtCH)M[(LIA0BGa|y(/lBo)@Hb3*=;k6)]Y]+,[CF9*bAoA=;4On(h[;,+:ATC()Bc4,@:XJBbOl|"
   },
@@ -14,9 +31,9 @@ export const en: LocalePack = {
     "trie": "((((N(*Gx4>8q+.?k[[2/JLN7?4?py(/=|s>S@2zCKr31=BY{s(0Xn0)ePmp(((((",
     "table": "((((4((C@1(aa^P(__q<((:4*((((("
   },
-  "patterns": {
-    "codec": "utf8",
-    "offsets": "((((,(((C@0*{`A(((((",
-    "data": "3As-i7Q;Yx3@vhi3BAMd]i,L?3BAh/7LB/X"
-  }
+  "patterns": [
+    "#,##0.###",
+    "#,##0%",
+    "¤#,##0.00"
+  ]
 };

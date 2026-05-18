@@ -10,7 +10,6 @@
     "typecheck": "tsc --noEmit",
     "generate:packs": "tsx scripts/generate-packs.ts",
     "generate:client": "node packages/cldr-generate/bin/cldr-generate.mjs --config examples/eager-app/cldr.config.ts --out examples/eager-app/src/cldr.gen.ts",
-    "benchmark": "tsx scripts/benchmark.ts",
     "bundle-proof": "tsx scripts/bundle-proof.ts",
     "build": "tsx scripts/build.ts",
     "packaging-check": "pnpm build && pnpm depcruise && tsx scripts/check-packages.ts",

@@ -10,5 +10,4 @@ export * from './pack/types.js';
 export * from './pack/decode.js';
 export * from './compile/index.js';
 export * from './compile/pool.js';
-export * from './compile/chunk.js';
 export * from './emit.js';

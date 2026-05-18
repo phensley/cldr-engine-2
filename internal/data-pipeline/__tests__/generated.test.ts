@@ -27,8 +27,8 @@ const runtimePacksDir = join(dirname(fileURLToPath(import.meta.url)), '../../../
 const PACK_STEMS = ['en', 'fr', 'de', 'es419', 'numeric'];
 
 describe('committed pack assets', () => {
-  it('are fresh: file contents equal a fresh render (default codec)', () => {
-    const compiled = compileDataset(miniCldr, { poolCodec: 'utf8' });
+  it('are fresh: file contents equal a fresh render', () => {
+    const compiled = compileDataset(miniCldr);
 
     for (const stem of PACK_STEMS) {
       for (const dir of [generatedDir, runtimePacksDir]) {
