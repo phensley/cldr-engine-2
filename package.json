@@ -15,7 +15,8 @@
     "build": "tsx scripts/build.ts",
     "packaging-check": "pnpm build && pnpm depcruise && tsx scripts/check-packages.ts",
     "depcruise": "depcruise packages internal --config .dependency-cruiser.cjs",
-    "pretest": "pnpm build"
+    "pretest": "pnpm build",
+    "publish-roundtrip": "tsx scripts/publish-roundtrip.ts"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
@@ -32,6 +33,7 @@
     "rollup-plugin-esbuild": "^6.2.1",
     "tsx": "^4.19.0",
     "typescript": "^5.9.3",
+    "verdaccio": "^6.10.1",
     "vitest": "^3.0.0"
   }
 }
