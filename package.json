@@ -16,7 +16,8 @@
     "packaging-check": "pnpm build && pnpm depcruise && tsx scripts/check-packages.ts",
     "depcruise": "depcruise packages internal --config .dependency-cruiser.cjs",
     "pretest": "pnpm build",
-    "publish-roundtrip": "tsx scripts/publish-roundtrip.ts"
+    "publish-roundtrip": "tsx scripts/publish-roundtrip.ts",
+    "benchmark:pools": "tsx scripts/benchmark-pools.ts"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
