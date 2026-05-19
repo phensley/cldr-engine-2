@@ -7,3 +7,6 @@ dist/
 packages/*/dist/
 packages/cldr/src/_core/
 .verdaccio/
+
+# fetch-cldr-data.ts cache (CLDR 48.2.x json)
+.cache/

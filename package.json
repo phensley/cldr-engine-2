@@ -16,7 +16,9 @@
     "depcruise": "depcruise packages internal --config .dependency-cruiser.cjs",
     "pretest": "pnpm build",
     "publish-roundtrip": "tsx scripts/publish-roundtrip.ts",
-    "benchmark:pools": "tsx scripts/benchmark-pools.ts"
+    "benchmark:pools": "tsx scripts/benchmark-pools.ts",
+    "benchmark:real": "tsx scripts/benchmark-real.ts",
+    "fetch:cldr": "tsx scripts/fetch-cldr-data.ts"
   },
   "devDependencies": {
     "@arethetypeswrong/cli": "^0.18.5",
