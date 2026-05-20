@@ -22,16 +22,16 @@ const build = (pack: DecodedLocalePack | undefined) => ({
 
 const client = createCldr({
   lazy: true,
-  locales: ["en","fr","de","es-419"] as const,
-  packs: { "en": () => import('@phensley/cldr/packs/en').then((m) => m.en), "fr": () => import('@phensley/cldr/packs/fr').then((m) => m.fr), "de": () => import('@phensley/cldr/packs/de').then((m) => m.de), "es-419": () => import('@phensley/cldr/packs/es419').then((m) => m.es419) },
+  locales: ["de","en","es-419","fr"] as const,
+  packs: { "de": () => import('@phensley/cldr/packs/de').then((m) => m.de), "en": () => import('@phensley/cldr/packs/en').then((m) => m.en), "es-419": () => import('@phensley/cldr/packs/es419').then((m) => m.es419), "fr": () => import('@phensley/cldr/packs/fr').then((m) => m.fr) },
   build,
 });
 
 export const cldr: Cldr<string, ReturnType<typeof build>> = {
   get(locale) {
-    return client.get(locale as "en" | "fr" | "de" | "es-419");
+    return client.get(locale as "de" | "en" | "es-419" | "fr");
   },
   preload(locale) {
-    return client.preload(locale as "en" | "fr" | "de" | "es-419");
+    return client.preload(locale as "de" | "en" | "es-419" | "fr");
   },
 };

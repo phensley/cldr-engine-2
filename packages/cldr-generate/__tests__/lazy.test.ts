@@ -27,7 +27,7 @@ describe('generate — lazy client', () => {
 
   test('locales list covers all packs + lazy flag is set', () => {
     expect(code).toContain('lazy: true');
-    expect(code).toContain('locales: ["en","fr","de","es-419"] as const');
+    expect(code).toContain('locales: ["de","en","es-419","fr"] as const');
   });
 
   test('no static pack imports in lazy mode', () => {
@@ -36,6 +36,6 @@ describe('generate — lazy client', () => {
 
   test('widened client: get/preload accept any string; unknown tags throw at runtime', () => {
     expect(code).toContain('export const cldr: Cldr<string, ReturnType<typeof build>> = {');
-    expect(code).toContain('client.get(locale as "en" | "fr" | "de" | "es-419")');
+    expect(code).toContain('client.get(locale as "de" | "en" | "es-419" | "fr")');
   });
 });

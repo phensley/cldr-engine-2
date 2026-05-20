@@ -17,6 +17,7 @@
     "pretest": "pnpm build",
     "publish-roundtrip": "tsx scripts/publish-roundtrip.ts",
     "benchmark:pools": "tsx scripts/benchmark-pools.ts",
+    "scan:manifest": "tsx scripts/scan-manifest.ts",
     "benchmark:real": "tsx scripts/benchmark-real.ts",
     "fetch:cldr": "tsx scripts/fetch-cldr-data.ts"
   },
