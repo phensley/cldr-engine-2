@@ -535,7 +535,7 @@ const familyVerdict = (() => {
       const lit = col(cross.rows, 'literal-each (v0.1)');
       const shFull = col(cross.rows, 'shared-full');
       const shDelta = col(cross.rows, 'shared-delta');
-      return `**Verdict: row 3 CONFIRMED — literals win both gz modes even with de at 33.9% overlap.** shared-full: eager gz ${fmtPct(shFull.gzConcat, lit.gzConcat)}, lazy gz ${fmtPct(shFull.gzPerModule, lit.gzPerModule)}; shared-delta: eager ${fmtPct(shDelta.gzConcat, lit.gzConcat)}, lazy ${fmtPct(shDelta.gzPerModule, lit.gzPerModule)}. The u16 index arrays outweigh what the shared pool recovers (the pool dedups only the overlap while every locale pays full index bytes; mask+delta within a family — §2 — is where real duplication lives). The recorded ≥40% re-measure gate stands, but the crossover must be well above it: 33.9% overlap is still a 30%+ loss.`;
+      return `**Verdict: row 3 CONFIRMED — literals win both gz modes even with de at 33.9% overlap.** shared-full: eager gz ${fmtPct(shFull.gzConcat, lit.gzConcat)}, lazy gz ${fmtPct(shFull.gzPerModule, lit.gzPerModule)}; shared-delta: eager ${fmtPct(shDelta.gzConcat, lit.gzConcat)}, lazy ${fmtPct(shDelta.gzPerModule, lit.gzPerModule)}. The u16 index arrays outweigh what the shared pool recovers (the pool dedups only the overlap while every locale pays full index bytes; mask+delta within a family — §2 — is where real duplication lives). The ≥40% re-measure gate is retired to a canary (design doc §2.3): 33.9% overlap is still a 30%+ loss, and any pair that would cross the gate is family-classified and handled by the base+delta row anyway.`;
     })(),
     '',
     '## 4. Numeric tables (design doc §3 row 4)',
