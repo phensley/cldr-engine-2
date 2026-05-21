@@ -61,6 +61,32 @@ describe('createCldr — eager mode', () => {
   test('contexts are cached per locale', () => {
     expect(cldr.get('en')).toBe(cldr.get('en'));
   });
+
+  test('instances are isolated: decode + build repeat per client, contexts never shared', () => {
+    // the cache-lifetime contract (plans/prototype-plan.md §12): caches are
+    // per-client and die with the instance — no implicit global cache.
+    let builds = 0;
+    const makeClient = () =>
+      createCldr({
+        lazy: false,
+        locales: ['en'] as const,
+        packs: { en },
+        build: (pack) => {
+          builds++;
+          return { currency: makeCurrencyFactory(pack!, { format, symbol, fractionDigits }) };
+        },
+      });
+    const a = makeClient();
+    const b = makeClient();
+    expect(builds).toBe(0); // nothing built until first get()
+    const ctxA = a.get('en');
+    expect(builds).toBe(1);
+    const ctxB = b.get('en');
+    expect(builds).toBe(2); // a fresh client pays its own decode + build
+    expect(ctxA).not.toBe(ctxB); // no cross-instance context sharing
+    expect(ctxA.currency.new('1', 'USD').format()).toBe('$1.00');
+    expect(a.get('en')).toBe(ctxA); // per-client identity still holds
+  });
 });
 
 describe('createCldr — lazy mode', () => {
@@ -97,5 +123,14 @@ describe('createCldr — lazy mode', () => {
     const cldr = createCldr({ lazy: false, locales: ['en'] as const, packs: { en }, build });
     await cldr.preload('en');
     expect(cldr.get('en').decimal.new('1').compare('1')).toBe(0);
+  });
+
+  test('preload state is per-client — one instance loading does not unlock another', async () => {
+    const mk = () => createCldr({ lazy: true, locales: ['en'] as const, packs: { en: () => import('@phensley/cldr/packs/en').then((m) => m.en) }, build });
+    const a = mk();
+    const b = mk();
+    await a.preload('en');
+    expect(a.get('en')).toBeDefined();
+    expect(() => b.get('en')).toThrow(/has not been preloaded/);
   });
 });

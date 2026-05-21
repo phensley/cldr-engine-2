@@ -13,6 +13,15 @@
  * `locales` is the only source of truth for resolution: get()/preload()
  * accept exactly the configured literal union (type-level), are
  * case-insensitive, and cache per locale.
+ *
+ * Cache-lifetime contract (plans/prototype-plan.md §12): ALL caches
+ * (decoded packs, built contexts, preload state) are per-client — they
+ * live inside this closure and die with the instance. No module-level
+ * cache, no WeakRef, no eviction. Cross-instance safety is therefore
+ * structural: a short-lived instance never observes another instance's
+ * state. The generated client is a module-scope singleton by
+ * construction, so per-client caches already have app lifetime in the
+ * intended usage.
  */
 import { decodeLocalePack } from '@cldr/internal-core';
 import type { DecodedLocalePack, LocalePack } from '@cldr/internal-core';
