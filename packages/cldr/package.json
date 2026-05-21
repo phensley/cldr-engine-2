@@ -16,13 +16,37 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./decimal/*": {
-      "types": "./dist/decimal/*.d.ts",
-      "default": "./dist/decimal/*.js"
+    "./decimal/compare": {
+      "types": "./dist/decimal/compare.d.ts",
+      "default": "./dist/decimal/compare.js"
     },
-    "./currency/*": {
-      "types": "./dist/currency/*.d.ts",
-      "default": "./dist/currency/*.js"
+    "./decimal/min": {
+      "types": "./dist/decimal/min.d.ts",
+      "default": "./dist/decimal/min.js"
+    },
+    "./decimal/max": {
+      "types": "./dist/decimal/max.d.ts",
+      "default": "./dist/decimal/max.js"
+    },
+    "./decimal/move-point": {
+      "types": "./dist/decimal/move-point.d.ts",
+      "default": "./dist/decimal/move-point.js"
+    },
+    "./decimal/format/scientific": {
+      "types": "./dist/decimal/format/scientific.d.ts",
+      "default": "./dist/decimal/format/scientific.js"
+    },
+    "./currency/format": {
+      "types": "./dist/currency/format.d.ts",
+      "default": "./dist/currency/format.js"
+    },
+    "./currency/symbol": {
+      "types": "./dist/currency/symbol.d.ts",
+      "default": "./dist/currency/symbol.js"
+    },
+    "./currency/fraction-digits": {
+      "types": "./dist/currency/fraction-digits.d.ts",
+      "default": "./dist/currency/fraction-digits.js"
     },
     "./packs/*": {
       "types": "./dist/packs/*.d.ts",

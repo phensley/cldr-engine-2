@@ -10,7 +10,7 @@
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { deriveManifest, renderManifest, MANIFEST_PATH } from '../../../scripts/scan-manifest.js';
+import { deriveExports, deriveManifest, renderManifest, MANIFEST_PATH, PKG_PATH } from '../../../scripts/scan-manifest.js';
 import { manifest } from '../src/manifest.js';
 
 const srcDir = join(dirname(fileURLToPath(import.meta.url)), '../src');
@@ -75,5 +75,32 @@ describe('committed runtime manifest', () => {
       .filter((f) => f.endsWith('.ts') && f !== 'numeric.ts')
       .map((f) => tagFromStem(f.replace(/\.ts$/, '')));
     expect([...manifest.locales].sort()).toEqual(tags.sort());
+  });
+
+  it('package.json exports equal the manifest-derived surface (no wildcards for internals)', () => {
+    const pkg = JSON.parse(readFileSync(PKG_PATH, 'utf8')) as { exports: unknown };
+    expect(pkg.exports, 'package.json exports are stale — run pnpm scan:manifest').toEqual(deriveExports(deriveManifest()));
+  });
+
+  it('the public surface is exactly the manifest: internal modules are not importable', async () => {
+    // the ref-impl placement contract (plans/prototype-plan.md §12): the
+    // wildcard `./decimal/*`/`./currency/*` reachability is closed —
+    // internals ship in dist but are not resolvable through the exports map
+    for (const spec of [
+      '@phensley/cldr/decimal/state',
+      '@phensley/cldr/decimal/format/pattern',
+      '@phensley/cldr/currency/lookup',
+      '@phensley/cldr/currency/state',
+      '@phensley/cldr/locale',
+      '@phensley/cldr/factory',
+      '@phensley/cldr/api',
+      '@phensley/cldr/index',
+    ]) {
+      await expect(import(spec), spec).rejects.toThrow();
+    }
+    // …and the slot subpaths resolve (symmetry check)
+    for (const spec of ['@phensley/cldr/decimal/compare', '@phensley/cldr/currency/format', '@phensley/cldr/decimal/format/scientific']) {
+      await expect(import(spec), spec).resolves.toBeDefined();
+    }
   });
 });

@@ -31,6 +31,7 @@ const GENERATED = [
   'internal/data-pipeline/generated',
   'packages/cldr/src/packs',
   'packages/cldr/src/manifest.ts',
+  'packages/cldr/package.json', // exports map is manifest-derived
   'examples/eager-app/src/cldr.gen.ts',
   'examples/lazy-app/src/cldr.gen.ts',
 ];
