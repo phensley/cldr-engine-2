@@ -30,9 +30,12 @@ describe('workspace wiring', () => {
     const sample = {
       locales: {
         en: {
-          currencies: { USD: { symbol: '$', fractionDigits: 2 } },
+          currencies: { USD: { symbol: '$', narrowSymbol: '$', displayName: 'US Dollar', displayNameOther: 'US dollars', fractionDigits: 2 } },
           territories: { GB: 'United Kingdom', ES: 'Spain' },
+          languages: { fr: 'French' },
+          scripts: { Latn: 'Latin' },
           patterns: { decimal: '#,##0.###', percent: '#,##0%', currency: '¤#,##0.00' },
+          symbols: { decimal: '.', group: ',', minus: '-', percent: '%' },
         },
       },
       numeric: { keys: ['UTC+0'], values: [0, 65535] },

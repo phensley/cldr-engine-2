@@ -108,7 +108,16 @@ describe('numeric u16 domain (v0.1: pools are arrays, numbers are u16)', () => {
     // array literal it compiles and round-trips by identity
     const many = Array.from({ length: 40000 }, (_, i) => `x${i}`);
     const compiled = compileDataset({
-      locales: { en: { territories: { X1: many[39999] }, currencies: {}, patterns: { decimal: '#', percent: '%', currency: '¤' } } },
+      locales: {
+        en: {
+          territories: { X1: many[39999] },
+          currencies: {},
+          languages: {},
+          scripts: {},
+          patterns: { decimal: '#', percent: '%', currency: '¤' },
+          symbols: { decimal: '.', group: ',', minus: '-', percent: '%' },
+        },
+      },
       numeric: { keys: [], values: [] },
     } satisfies Dataset);
     expect(decodeLocalePack(compiled.locale.en).pool).toEqual([many[39999]]);
@@ -116,7 +125,16 @@ describe('numeric u16 domain (v0.1: pools are arrays, numbers are u16)', () => {
 
   it('empty key sets compile to empty pack streams (no undefined values)', () => {
     const compiled = compileDataset({
-      locales: { en: { territories: {}, currencies: {}, patterns: { decimal: '#', percent: '%', currency: '¤' } } },
+      locales: {
+        en: {
+          territories: {},
+          currencies: {},
+          languages: {},
+          scripts: {},
+          patterns: { decimal: '#', percent: '%', currency: '¤' },
+          symbols: { decimal: '.', group: ',', minus: '-', percent: '%' },
+        },
+      },
       numeric: { keys: [], values: [] },
     } satisfies Dataset);
     const d = decodeLocalePack(compiled.locale.en);

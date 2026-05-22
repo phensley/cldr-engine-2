@@ -49,6 +49,7 @@ const LOCALES = ['en', 'en-001', 'en-GB', 'en-AU', 'en-CA', 'fr', 'de', 'zh', 'a
 /** Paths (inside the zip) we extract. */
 const FILES = [
   'cldr-core/supplemental/currencyData.json',
+  'cldr-core/supplemental/numberingSystems.json',
   ...LOCALES.flatMap((l) => [
     `cldr-localenames-full/main/${l}/languages.json`,
     `cldr-localenames-full/main/${l}/scripts.json`,
@@ -117,7 +118,8 @@ const extract = (): void => {
 };
 
 await ensureZip();
-if (!existsSync(join(CACHE, 'cldr-core/supplemental/currencyData.json'))) {
+const missing = FILES.filter((f) => !existsSync(join(CACHE, f)));
+if (missing.length > 0) {
   extract();
 } else {
   console.log('fetch-cldr: extraction already present — done');

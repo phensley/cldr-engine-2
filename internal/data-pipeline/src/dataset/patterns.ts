@@ -1,11 +1,13 @@
-import type { NumberPatterns } from './types.js';
+import type { NumberPatterns, NumberSymbols } from './types.js';
 
 /**
- * Number format patterns — per-locale, 3 per locale.
+ * Number format patterns + symbols — per-locale.
  *
  * Exercises: string pool (patterns ship whole; symbols like NBSP are
- * non-ASCII). "\u00a0" is the non-breaking space CLDR uses in
- * fr/de number formats.
+ * non-ASCII). "\u00a0" is the non-breaking space CLDR uses in fr/de
+ * number formats. Fixture symbols are chosen to render EXACTLY the
+ * historical fixture outputs (fr groups with ',', not the real
+ * U+202F) — the real adapter carries real CLDR symbols.
  */
 export const patterns: Record<string, NumberPatterns> = {
   en: {
@@ -30,3 +32,9 @@ export const patterns: Record<string, NumberPatterns> = {
   },
 };
 
+export const symbols: Record<string, NumberSymbols> = {
+  en: { decimal: '.', group: ',', minus: '-', percent: '%' },
+  fr: { decimal: ',', group: ',', minus: '-', percent: '%' },
+  de: { decimal: ',', group: '.', minus: '-', percent: '%' },
+  'es-419': { decimal: '.', group: ',', minus: '-', percent: '%' },
+};
