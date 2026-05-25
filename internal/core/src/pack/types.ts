@@ -14,12 +14,22 @@
  * decoder.
  */
 
-/** One locale's pack: per-locale data only (territories, currencies, patterns). */
+/** One locale's pack: per-locale data only (territories, languages, scripts, currencies, patterns, symbols). */
 export interface LocalePack {
-  /** Shared pool: territory names + currency symbols, deduped + sorted. */
+  /** Shared pool: display names (territories/languages/scripts) + currency symbols, deduped + sorted. */
   pool: string[];
   /** Territory code → pool index. */
   territories: {
+    /** X85(GVE16(trie u16[])). */
+    trie: string;
+  };
+  /** Language code → pool index (wire v1). */
+  languages: {
+    /** X85(GVE16(trie u16[])). */
+    trie: string;
+  };
+  /** Script code → pool index (wire v1). */
+  scripts: {
     /** X85(GVE16(trie u16[])). */
     trie: string;
   };
@@ -35,8 +45,15 @@ export interface LocalePack {
     /** X85(GVE16(u16[])) — 2 × currency count. */
     table: string;
   };
-  /** Exactly 3 entries in fixed order: [decimal, percent, currency]. */
+  /** Exactly 3 entries in fixed order: [decimal, percent, currency] (positive subpatterns). */
   patterns: string[];
+  /**
+   * Exactly 4 entries in fixed order: [decimal, group, minus, percent]
+   * (wire v1 — the locale's separators for the DEFAULT numbering system;
+   * the runtime formatter renders with these, not hard-coded ','/'.').
+   * Keep order in sync with compile/locale.ts + decode.ts.
+   */
+  symbols: string[];
 }
 
 /** Locale-independent pack (the shared numeric table). */

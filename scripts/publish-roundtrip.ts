@@ -112,7 +112,7 @@ try {
   // single source of truth: the consumer's cldr.config.ts and the
   // workspace parity reference both generate from this
   const CONFIG = defineConfig({
-    locales: ['en', 'es-419', 'fr'],
+    locales: ['en', 'de', 'fr'],
     features: {
       decimal: { compare: true, min: true, format: { scientific: true } },
       currency: true,
@@ -120,7 +120,7 @@ try {
   });
 
   const APP = `import { cldr } from './cldr.gen.js';
-export const run = (locale: 'en' | 'es-419' | 'fr') => {
+export const run = (locale: 'en' | 'de' | 'fr') => {
   const ctx = cldr.get(locale);
   const total = ctx.currency.new('1234.5', 'USD').format();
   const cheapest = ctx.decimal.new('0.99').min(1.5);
@@ -194,7 +194,7 @@ export const run = (locale: 'en' | 'es-419' | 'fr') => {
   const gen = run(join(CONSUMER, 'node_modules', '.bin', 'cldr-generate'), ['--config', 'cldr.config.ts', '--out', 'src/cldr.gen.ts'], CONSUMER);
   assert(gen.status === 0, 'generator CLI failed in consumer');
   const genFile = join(CONSUMER, 'src/cldr.gen.ts');
-  assert(readFileSync(genFile, 'utf8').includes('@phensley/cldr/packs/es419'), 'generated client imports the es-419 pack');
+  assert(readFileSync(genFile, 'utf8').includes('@phensley/cldr/packs/de'), 'generated client imports the de pack');
   console.log('client generated (' + readFileSync(genFile, 'utf8').length + ' bytes)');
 
   // 4. types resolve under NodeNext + bundler resolutions (real installed
@@ -259,7 +259,7 @@ export const run = (locale: 'en' | 'es-419' | 'fr') => {
   );
   assert(blocked !== null && /Could not resolve|No matching export/.test(blocked), `browser bundling must not resolve ./manifest: got ${String(blocked).slice(0, 120)}`);
   const man = await import(new URL(`file://${join(CONSUMER, 'node_modules', '@phensley', 'cldr', 'dist', 'manifest.js')}`));
-  assert((man as { manifest: { locales: string[] } }).manifest.locales.length === 4, 'node resolution of ./manifest works');
+  assert((man as { manifest: { locales: string[] } }).manifest.locales.length === 11, 'node resolution of ./manifest works');
   console.log('browser: blocked ✓  node: resolves ✓');
 
   // 7. installed dist hygiene

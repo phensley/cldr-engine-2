@@ -22,16 +22,16 @@ const build = (pack: DecodedLocalePack | undefined) => ({
 
 const client = createCldr({
   lazy: true,
-  locales: ["de","en","es-419","fr"] as const,
-  packs: { "de": () => import('@phensley/cldr/packs/de').then((m) => m.de), "en": () => import('@phensley/cldr/packs/en').then((m) => m.en), "es-419": () => import('@phensley/cldr/packs/es419').then((m) => m.es419), "fr": () => import('@phensley/cldr/packs/fr').then((m) => m.fr) },
+  locales: ["ar","de","en","en-001","en-AU","en-CA","en-GB","fr","hi","ru","zh"] as const,
+  packs: { "ar": () => import('@phensley/cldr/packs/ar').then((m) => m.ar), "de": () => import('@phensley/cldr/packs/de').then((m) => m.de), "en": () => import('@phensley/cldr/packs/en').then((m) => m.en), "en-001": () => import('@phensley/cldr/packs/en001').then((m) => m.en001), "en-AU": () => import('@phensley/cldr/packs/enAU').then((m) => m.enAU), "en-CA": () => import('@phensley/cldr/packs/enCA').then((m) => m.enCA), "en-GB": () => import('@phensley/cldr/packs/enGB').then((m) => m.enGB), "fr": () => import('@phensley/cldr/packs/fr').then((m) => m.fr), "hi": () => import('@phensley/cldr/packs/hi').then((m) => m.hi), "ru": () => import('@phensley/cldr/packs/ru').then((m) => m.ru), "zh": () => import('@phensley/cldr/packs/zh').then((m) => m.zh) },
   build,
 });
 
 export const cldr: Cldr<string, ReturnType<typeof build>> = {
   get(locale) {
-    return client.get(locale as "de" | "en" | "es-419" | "fr");
+    return client.get(locale as "ar" | "de" | "en" | "en-001" | "en-AU" | "en-CA" | "en-GB" | "fr" | "hi" | "ru" | "zh");
   },
   preload(locale) {
-    return client.preload(locale as "de" | "en" | "es-419" | "fr");
+    return client.preload(locale as "ar" | "de" | "en" | "en-001" | "en-AU" | "en-CA" | "en-GB" | "fr" | "hi" | "ru" | "zh");
   },
 };

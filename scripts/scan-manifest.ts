@@ -47,6 +47,7 @@ import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import ts from 'typescript';
+import { tagFromStem } from '../internal/data-pipeline/src/emit.js';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SRC = join(ROOT, 'packages', 'cldr', 'src');
@@ -113,8 +114,6 @@ const apiInterfaces = (): Map<string, ts.InterfaceDeclaration> => {
 const kebab = (name: string): string => name.replace(/([a-z0-9])([A-Z])/g, '$1-$2').toLowerCase();
 const camel = (name: string): string => name[0].toLowerCase() + name.slice(1);
 const pascal = (name: string): string => name[0].toUpperCase() + name.slice(1);
-/** packs/en.ts → 'en'; packs/es419.ts → 'es-419' (inverse of localeIdentifier). */
-const tagFromStem = (stem: string): string => (/([a-z]+)(\d+)$/i.test(stem) ? stem.replace(/([a-z]+)(\d+)$/i, '$1-$2') : stem);
 
 // ---------------------------------------------------------------------------
 // derive

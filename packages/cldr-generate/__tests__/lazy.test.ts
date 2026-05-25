@@ -12,7 +12,19 @@ const code = generate({
 
 describe('generate — lazy client', () => {
   test('maps EVERY manifest locale via literal import() loaders', () => {
-    for (const [tag, id] of [['en', 'en'], ['fr', 'fr'], ['de', 'de'], ['es-419', 'es419']] as const) {
+    for (const [tag, id] of [
+      ['ar', 'ar'],
+      ['de', 'de'],
+      ['en', 'en'],
+      ['en-001', 'en001'],
+      ['en-AU', 'enAU'],
+      ['en-CA', 'enCA'],
+      ['en-GB', 'enGB'],
+      ['fr', 'fr'],
+      ['hi', 'hi'],
+      ['ru', 'ru'],
+      ['zh', 'zh'],
+    ] as const) {
       expect(code).toContain(`import('@phensley/cldr/packs/${id}')`);
       expect(code).toContain(`.then((m) => m.${id})`);
       void tag;
@@ -27,7 +39,7 @@ describe('generate — lazy client', () => {
 
   test('locales list covers all packs + lazy flag is set', () => {
     expect(code).toContain('lazy: true');
-    expect(code).toContain('locales: ["de","en","es-419","fr"] as const');
+    expect(code).toContain('locales: ["ar","de","en","en-001","en-AU","en-CA","en-GB","fr","hi","ru","zh"] as const');
   });
 
   test('no static pack imports in lazy mode', () => {
@@ -36,6 +48,6 @@ describe('generate — lazy client', () => {
 
   test('widened client: get/preload accept any string; unknown tags throw at runtime', () => {
     expect(code).toContain('export const cldr: Cldr<string, ReturnType<typeof build>> = {');
-    expect(code).toContain('client.get(locale as "de" | "en" | "es-419" | "fr")');
+    expect(code).toContain('client.get(locale as "ar" | "de" | "en" | "en-001" | "en-AU" | "en-CA" | "en-GB" | "fr" | "hi" | "ru" | "zh")');
   });
 });

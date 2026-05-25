@@ -40,7 +40,7 @@ export interface Manifest {
 }
 
 export const manifest: Manifest = {
-  locales: ['de', 'en', 'es-419', 'fr'],
+  locales: ['ar', 'de', 'en', 'en-001', 'en-AU', 'en-CA', 'en-GB', 'fr', 'hi', 'ru', 'zh'],
   features: {
     decimal: {
       factory: 'makeDecimalFactory',

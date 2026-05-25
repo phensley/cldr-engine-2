@@ -10,7 +10,7 @@ import { format } from '@phensley/cldr/currency/format';
 import { symbol } from '@phensley/cldr/currency/symbol';
 import { fractionDigits } from '@phensley/cldr/currency/fraction-digits';
 import { en } from '@phensley/cldr/packs/en';
-import { es419 } from '@phensley/cldr/packs/es419';
+import { de } from '@phensley/cldr/packs/de';
 import { fr } from '@phensley/cldr/packs/fr';
 
 // mirrors the emitted client: packs may be absent (decimal-only configs)
@@ -22,40 +22,40 @@ const build = (pack: Parameters<typeof makeCurrencyFactory>[0] | undefined) => (
 describe('createCldr — eager mode', () => {
   const cldr = createCldr({
     lazy: false,
-    locales: ['en', 'es-419', 'fr'] as const,
-    packs: { en, 'es-419': es419, fr },
+    locales: ['en', 'de', 'fr'] as const,
+    packs: { en, de, fr },
     build,
   });
 
   test('get() is synchronous and resolves features from the locale pack', () => {
     const ctx = cldr.get('en');
     expect(ctx.currency.new('1234.5', 'USD').format()).toBe('$1,234.50');
-    expect(cldr.get('es-419').currency.new('5', 'MXN').symbol()).toBe('MX$');
+    expect(cldr.get('de').currency.new('5', 'MXN').symbol()).toBe('MX$');
     expect(ctx.decimal.new('1.5').format.scientific()).toBe('1.5e+0');
-    expect(cldr.get('es-419').currency.new('5', 'MXN').symbol()).toBe('MX$');
-    expect(cldr.get('fr').currency.new('1234.5', 'EUR').format()).toBe('1,234.50\u00a0€');
+    expect(cldr.get('de').currency.new('5', 'MXN').symbol()).toBe('MX$');
+    expect(cldr.get('fr').currency.new('1234.5', 'EUR').format()).toBe('1\u202f234,50\u00a0€');
   });
 
   test('get() is case-insensitive and canonicalizes to the configured tag (runtime)', () => {
     const getAny = (cldr: unknown) => (cldr as { get: (l: string) => unknown }).get;
     expect(getAny(cldr)('EN')).toBe(cldr.get('en'));
-    expect(getAny(cldr)('ES-419')).toBe(cldr.get('es-419'));
+    expect(getAny(cldr)('DE')).toBe(cldr.get('de'));
   });
 
   test('locale param is narrowed to the configured literal union', () => {
     // compile-time rejection of unconfigured locales (never executed)
     const rejectUnconfigured = () => {
       // @ts-expect-error — 'de' is not configured
-      cldr.get('de');
+      cldr.get('zh');
     };
     void rejectUnconfigured;
-    const tags: ('en' | 'es-419' | 'fr')[] = ['en', 'fr'];
+    const tags: ('en' | 'de' | 'fr')[] = ['en', 'fr'];
     expect(cldr.get(tags[0])).toBeDefined();
     void cldr.preload; // eager mode still exposes the seam (no-op)
   });
 
   test('unconfigured locale fails loudly at runtime with the available list', () => {
-    expect(() => (cldr as unknown as { get: (l: string) => unknown }).get('de')).toThrow(/available: en, es-419, fr/);
+    expect(() => (cldr as unknown as { get: (l: string) => unknown }).get('zh')).toThrow(/available: en, de, fr/);
   });
 
   test('contexts are cached per locale', () => {

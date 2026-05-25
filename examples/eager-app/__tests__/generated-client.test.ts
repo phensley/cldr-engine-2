@@ -9,19 +9,19 @@ import { cldr } from '../src/cldr.gen.js';
 describe('generated eager client (examples/eager-app)', () => {
   it('is synchronous and resolves configured locales', () => {
     expect(cldr.get('en').currency.new('1234.5', 'USD').format()).toBe('$1,234.50');
-    expect(cldr.get('es-419').currency.new('5', 'MXN').symbol()).toBe('MX$');
-    expect(cldr.get('fr').currency.new('1234.5', 'EUR').format()).toBe('1,234.50\u00a0€');
+    expect(cldr.get('de').currency.new('5', 'MXN').symbol()).toBe('MX$');
+    expect(cldr.get('fr').currency.new('1234.5', 'EUR').format()).toBe('1\u202f234,50\u00a0€');
     expect(cldr.get('en').decimal.new('1.5').format.scientific()).toBe('1.5e+0');
     expect(cldr.get('en').decimal.new('2').min(1).compare('1')).toBe(0);
   });
 
   it('narrows locale to the configured union (compile-time)', () => {
     const rejectUnconfigured = () => {
-      // @ts-expect-error — 'de' is not configured
-      cldr.get('de');
+      // @ts-expect-error — 'zh' is not configured
+      cldr.get('zh');
     };
     void rejectUnconfigured;
-    const tags: ('en' | 'es-419' | 'fr')[] = ['en', 'fr'];
+    const tags: ('en' | 'de' | 'fr')[] = ['en', 'fr'];
     expect(cldr.get(tags[1]).currency.new('1', 'EUR').fractionDigits()).toBe(2);
   });
 

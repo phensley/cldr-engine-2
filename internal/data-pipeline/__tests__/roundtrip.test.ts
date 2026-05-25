@@ -67,7 +67,12 @@ describe('pack round-trip', () => {
     for (const [tag, pack] of Object.entries(compiled.locale)) {
       const d = decodeLocalePack(pack);
       const expected = [
-        ...new Set([...Object.values(original(tag).territories), ...Object.values(original(tag).currencies).map((c) => c.symbol)]),
+        ...new Set([
+          ...Object.values(original(tag).territories),
+          ...Object.values(original(tag).languages),
+          ...Object.values(original(tag).scripts),
+          ...Object.values(original(tag).currencies).map((c) => c.symbol),
+        ]),
       ].sort();
       expect(d.pool).toEqual(expected);
     }

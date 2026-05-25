@@ -33,8 +33,12 @@ export const patterns: Record<string, NumberPatterns> = {
 };
 
 export const symbols: Record<string, NumberSymbols> = {
+  // Chosen to render EXACTLY the historical fixture outputs (v0 formatter
+  // hard-coded decimal '.', group ',', minus '-'): the fixture is
+  // self-consistent by contract. The real adapter (dataset/real.ts)
+  // carries real CLDR symbols (fr U+202F grouping, ar LRM-minus, …).
   en: { decimal: '.', group: ',', minus: '-', percent: '%' },
-  fr: { decimal: ',', group: ',', minus: '-', percent: '%' },
-  de: { decimal: ',', group: '.', minus: '-', percent: '%' },
+  fr: { decimal: '.', group: ',', minus: '-', percent: '%' },
+  de: { decimal: '.', group: ',', minus: '-', percent: '%' },
   'es-419': { decimal: '.', group: ',', minus: '-', percent: '%' },
 };

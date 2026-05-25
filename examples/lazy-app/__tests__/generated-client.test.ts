@@ -17,7 +17,7 @@ describe('generated lazy client (examples/lazy-app)', () => {
     // separate locale still needs its own preload
     expect(() => cldr.get('de')).toThrow(/has not been preloaded/);
     await cldr.preload('de');
-    expect(cldr.get('de').currency.new('1234.5', 'EUR').format()).toBe('1,234.50\u00a0€');
+    expect(cldr.get('de').currency.new('1234.5', 'EUR').format()).toBe('1.234,50\u00a0€');
   });
 
   it("is regenerable: committed file matches a fresh generate()", async () => {

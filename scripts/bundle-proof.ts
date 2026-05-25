@@ -22,6 +22,8 @@ import { join } from 'node:path';
 import { gzipSync } from 'node:zlib';
 import { generate } from '../packages/cldr-generate/src/index.js';
 import type { CldrConfig } from '../packages/cldr-generate/src/index.js';
+import { manifest } from '../packages/cldr/src/manifest.js';
+import { localeIdentifier } from '../internal/data-pipeline/src/emit.js';
 
 const root = process.cwd();
 const tmp = join(root, '.bundle-proof');
@@ -61,7 +63,7 @@ const cases: HarnessCase[] = [
   },
   {
     name: 'all-4-eager',
-    config: { locales: ['en', 'fr', 'de', 'es-419'], features: { decimal: true, currency: true } },
+    config: { locales: ['en', 'fr', 'de', 'zh'], features: { decimal: true, currency: true } },
     app: (ctx: string) => [decimalApp(ctx), currencyApp(ctx)].join('\n'),
   },
   {
@@ -127,7 +129,7 @@ const hasPack = (inputs: string[], tag: string) =>
   inputs.some((p) => p.includes(`/src/packs/${tag}.ts`) || p.includes(`/dist/packs/${tag}.js`));
 
 // v0.1: pools are array literals, so locale data IS grep-able module text
-const SENTINELS = { en: 'United Kingdom', fr: 'Royaume-Uni', de: 'Vereinigtes Königreich', 'es-419': 'México' } as const;
+const SENTINELS = { en: 'United Kingdom', fr: 'Royaume-Uni', de: 'Vereinigtes Königreich', zh: '美国', ar: 'الولايات المتحدة', hi: 'संयुक्त राज्य', ru: 'Соединенные Штаты' } as const;
 
 // ---------------------------------------------------------------------------
 // run
@@ -155,44 +157,51 @@ for (const c of cases) {
   }
   if (c.name === 'currency-en-fr') {
     assert(hasPack(inputs, 'en') && hasPack(inputs, 'fr'), 'currency-en-fr: en+fr packs in graph');
-    assert(!hasPack(inputs, 'es419') && !hasPack(inputs, 'de'), 'currency-en-fr: es-419/de packs absent from graph');
+    assert(!hasPack(inputs, 'de') && !hasPack(inputs, 'zh'), 'currency-en-fr: de/zh packs absent from graph');
     assert(inGraph('/currency/').length > 0, 'currency-en-fr: currency modules in graph');
     // currency.format transitively pulls the decimal pattern formatter —
     // but NOT the scientific method module (the config-selected slot)
     assert(inGraph('/decimal/format/scientific').length === 0, 'currency-en-fr: scientific module absent');
     assert(!text.includes('scientific'), 'currency-en-fr: scientific method not shipped');
     assert(text.includes(SENTINELS.fr), 'currency-en-fr: fr data present (pool is literal text)');
-    assert(!text.includes(SENTINELS['es-419']), 'currency-en-fr: es-419 data absent');
+    assert(!text.includes(SENTINELS.zh), 'currency-en-fr: zh data absent');
     assert(!text.includes(SENTINELS.de), 'currency-en-fr: de data absent');
   }
   if (c.name === 'all-4-eager') {
-    for (const tag of ['en', 'fr', 'de', 'es419']) {
+    for (const tag of ['en', 'fr', 'de', 'zh']) {
       assert(hasPack(inputs, tag), `all-4-eager: ${tag} pack in graph`);
     }
-    for (const name of Object.values(SENTINELS)) {
-      assert(text.includes(name), `all-4-eager: "${name}" present`);
+    for (const tag of ['en', 'fr', 'de', 'zh'] as const) {
+      assert(text.includes(SENTINELS[tag]), `all-4-eager: "${SENTINELS[tag]}" present`);
     }
   }
   if (c.name === 'all-lazy') {
     assert(files.length > 1, 'lazy: bundler split into multiple chunks');
-    assert(hasPack(inputs, 'de') && hasPack(inputs, 'es419'), 'lazy: every pack is a chunk source');
+    assert(hasPack(inputs, 'de') && hasPack(inputs, 'zh'), 'lazy: every pack is a chunk source');
     // the entry chunk (the one holding the client runtime) must contain
     // exactly one dynamic import() per locale pack — and zero locale data
     const entryIdx = files.findIndex((f) => readFileSync(join(tmp, c.name, 'out', f), 'utf8').includes('createCldr'));
     assert(entryIdx >= 0, 'lazy: entry chunk identifiable (contains createCldr)');
     const entryText = readFileSync(join(tmp, c.name, 'out', files[entryIdx]), 'utf8');
-    const dynamicImports = entryText.match(/import\("\.\/[a-z0-9]+-[A-Z0-9]+\.js"\)/g) ?? [];
-    assert(dynamicImports.length === 4, `lazy: entry has exactly 4 per-locale import() calls (found ${dynamicImports.length})`);
+    const dynamicImports = entryText.match(/import\("\.\/[A-Za-z0-9]+-[A-Z0-9]+\.js"\)/g) ?? [];
+    assert(
+      dynamicImports.length === manifest.locales.length,
+      `lazy: entry has exactly one import() per manifest locale (${manifest.locales.length}; found ${dynamicImports.length})`,
+    );
     for (const name of Object.values(SENTINELS)) {
       assert(!entryText.includes(name), `lazy: entry carries no locale data ("${name}")`);
     }
-    // each locale chunk carries exactly its own pool text
-    const localeFiles = ['en', 'fr', 'de', 'es419'] as const;
-    const ids = ['en', 'fr', 'de', 'es419'] as const;
-    for (let i = 0; i < ids.length; i++) {
-      const chunk = files.find((f, idx) => idx !== entryIdx && readFileSync(join(tmp, c.name, 'out', f), 'utf8').includes(SENTINELS[ids[i] === 'es419' ? 'es-419' : ids[i]]));
-      assert(chunk !== undefined, `lazy: ${ids[i]} chunk carries its own pool text`);
-      void localeFiles;
+    // one chunk per locale, each carrying its locale's data; the entry
+    // itself carries none (checked above). Cross-family sentinels suffice:
+    // the en-family chunk pools intentionally share most strings, so a
+    // per-locale string match is not well-defined.
+    assert(files.length - 1 === manifest.locales.length, `lazy: one chunk per locale (${files.length - 1} vs ${manifest.locales.length})`);
+    const chunkTexts = files.filter((f, idx) => idx !== entryIdx).map((f) => readFileSync(join(tmp, c.name, 'out', f), 'utf8'));
+    for (const t of chunkTexts) {
+      assert(Object.values(SENTINELS).some((n) => t.includes(n)), 'lazy: every locale chunk carries pool text');
+    }
+    for (const n of Object.values(SENTINELS)) {
+      assert(chunkTexts.some((t) => t.includes(n)), `lazy: "${n}" present in some chunk`);
     }
   }
   // the numeric stress pack is never consumed by any feature

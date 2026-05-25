@@ -11,6 +11,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { deriveExports, deriveManifest, renderManifest, MANIFEST_PATH, PKG_PATH } from '../../../scripts/scan-manifest.js';
+import { tagFromStem } from '../../../internal/data-pipeline/src/emit.js';
 import { manifest } from '../src/manifest.js';
 
 const srcDir = join(dirname(fileURLToPath(import.meta.url)), '../src');
@@ -51,8 +52,6 @@ const allRefs = (slots: Record<string, unknown>): Array<{ specifier: string; exp
   }
   return out;
 };
-
-const tagFromStem = (stem: string): string => (/([a-z]+)(\d+)$/i.test(stem) ? stem.replace(/([a-z]+)(\d+)$/i, '$1-$2') : stem);
 
 describe('committed runtime manifest', () => {
   it('is fresh: file contents equal a fresh derive + render', () => {
