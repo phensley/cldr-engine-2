@@ -4,7 +4,7 @@
 import { defineConfig } from '@phensley/cldr-generate';
 
 export default defineConfig({
-  locales: ['en', 'de', 'fr'],
+  locales: ['en', 'en-GB', 'de', 'fr'],
   features: {
     decimal: { compare: true, min: true, format: { scientific: true } },
     currency: true,

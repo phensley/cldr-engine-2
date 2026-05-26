@@ -71,7 +71,7 @@ describe('committed runtime manifest', () => {
 
   it('locales match the shipped packs directory', () => {
     const tags = readdirSync(join(srcDir, 'packs'))
-      .filter((f) => f.endsWith('.ts') && f !== 'numeric.ts')
+      .filter((f) => f.endsWith('.ts') && f !== 'numeric.ts' && f !== 'layout.ts')
       .map((f) => tagFromStem(f.replace(/\.ts$/, '')));
     expect([...manifest.locales].sort()).toEqual(tags.sort());
   });

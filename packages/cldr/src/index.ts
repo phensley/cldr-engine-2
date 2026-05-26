@@ -10,7 +10,7 @@
 export * from './api.js';
 export { makeCurrencyFactory, makeDecimalFactory } from './factory.js';
 export { createCldr } from './client.js';
-export type { Cldr, CldrConfig } from './client.js';
+export type { Cldr, CldrConfig, PackEntry } from './client.js';
 export type { DecodedLocalePack } from '@cldr/internal-core';
 // wire-format types re-exported publicly so every per-module .d.ts can
 // reference them from a public entry (rollup-plugin-dts requirement)

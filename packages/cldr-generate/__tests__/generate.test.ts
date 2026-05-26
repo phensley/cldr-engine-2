@@ -9,7 +9,7 @@ import { join } from 'node:path';
 import { defineConfig, generate, writeClient } from '../src/index.js';
 
 const full = defineConfig({
-  locales: ['en', 'es-419', 'fr'],
+  locales: ['en', 'de', 'fr'],
   features: {
     decimal: { compare: true, min: true, format: { scientific: true } },
     currency: true,
@@ -40,7 +40,7 @@ describe('generate — full eager client', () => {
       '@phensley/cldr/currency/symbol',
       '@phensley/cldr/currency/fraction-digits',
       "@phensley/cldr/packs/en'",
-      "@phensley/cldr/packs/es419'",
+      "@phensley/cldr/packs/de'",
       "@phensley/cldr/packs/fr'",
     ]) {
       expect(code, spec).toContain(spec);
@@ -50,7 +50,7 @@ describe('generate — full eager client', () => {
   test('unselected slots are absent (no max, no movePoint, no unconfigured packs)', () => {
     expect(code).not.toContain('decimal/max');
     expect(code).not.toContain('move-point');
-    expect(code).not.toContain('@phensley/cldr/packs/de');
+    expect(code).not.toContain('@phensley/cldr/packs/zh'); // unconfigured
   });
 
   test('emitted build is annotated with the DecodedLocalePack union', () => {
@@ -58,8 +58,8 @@ describe('generate — full eager client', () => {
   });
 
   test('emits literal locale union + static sync packs', () => {
-    expect(code).toContain('locales: ["en","es-419","fr"] as const');
-    expect(code).toContain("packs: { \"en\": en, \"es-419\": es419, \"fr\": fr }");
+    expect(code).toContain('locales: ["en","de","fr"] as const');
+    expect(code).toContain("packs: { \"en\": en, \"de\": de, \"fr\": fr }");
   });
 });
 

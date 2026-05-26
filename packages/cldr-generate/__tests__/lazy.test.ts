@@ -12,22 +12,25 @@ const code = generate({
 
 describe('generate — lazy client', () => {
   test('maps EVERY manifest locale via literal import() loaders', () => {
-    for (const [tag, id] of [
-      ['ar', 'ar'],
-      ['de', 'de'],
-      ['en', 'en'],
-      ['en-001', 'en001'],
-      ['en-AU', 'enAU'],
-      ['en-CA', 'enCA'],
-      ['en-GB', 'enGB'],
-      ['fr', 'fr'],
-      ['hi', 'hi'],
-      ['ru', 'ru'],
-      ['zh', 'zh'],
+    // family variants (en family) load their DELTA modules; the rest load full packs
+    for (const [tag, id, delta] of [
+      ['ar', 'ar', false],
+      ['de', 'de', false],
+      ['en', 'en', true],
+      ['en-001', 'en001', false],
+      ['en-AU', 'enAU', true],
+      ['en-CA', 'enCA', true],
+      ['en-GB', 'enGB', true],
+      ['fr', 'fr', false],
+      ['hi', 'hi', false],
+      ['ru', 'ru', false],
+      ['zh', 'zh', false],
     ] as const) {
-      expect(code).toContain(`import('@phensley/cldr/packs/${id}')`);
+      const module = `@phensley/cldr/packs/${delta ? 'delta/' : ''}${id}`;
+      expect(code).toContain(`import('${module}')`);
       expect(code).toContain(`.then((m) => m.${id})`);
       void tag;
+      void delta;
     }
   });
 

@@ -34,7 +34,7 @@ const hasCache = existsSync(join(cacheDir, 'cldr-core/supplemental/numberingSyst
 
 const stems = (dir: string): string[] =>
   readdirSync(dir)
-    .filter((f) => f.endsWith('.ts') && !['index.ts', 'packs.ts', 'numeric.ts'].includes(f))
+    .filter((f) => f.endsWith('.ts') && !['index.ts', 'packs.ts', 'numeric.ts', 'layout.ts'].includes(f))
     .map((f) => f.replace(/\.ts$/, ''))
     .sort();
 

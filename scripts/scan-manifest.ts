@@ -250,7 +250,7 @@ export const deriveManifest = (): DerivedManifest => {
   }
 
   const locales = readdirSync(PACKS_DIR)
-    .filter((f) => f.endsWith('.ts') && f !== 'numeric.ts')
+    .filter((f) => f.endsWith('.ts') && f !== 'numeric.ts' && f !== 'layout.ts')
     .map((f) => tagFromStem(f.replace(/\.ts$/, '')))
     .sort();
 

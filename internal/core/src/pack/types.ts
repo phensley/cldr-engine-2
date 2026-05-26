@@ -63,3 +63,28 @@ export interface NumericPack {
   /** X85(GVE16(u16[])) — parallel to keys. */
   values: string;
 }
+
+/**
+ * Family-variant delta (wire v1, generator layout selection — design
+ * doc §3 row 2). A variant ships ONLY its differences from a base pack:
+ * sparse per-class override tries and optional pool/pattern/symbol
+ * overrides. The runtime materializes the merged pack once at preload.
+ *
+ * Trie streams use the same X85(GVE16(u16[])) codec as LocalePack;
+ * values are indices into the MERGED pool (base pool, then poolAdd).
+ */
+export interface VariantDelta {
+  /** Base locale tag this delta applies to (must resolve in the same pack set). */
+  base: string;
+  /** Extra pool strings appended after the base pool (rare — override values usually exist in base). */
+  poolAdd?: string[];
+  /** Sparse override tries: code → merged-pool index. */
+  territories?: string;
+  languages?: string;
+  scripts?: string;
+  /** Currency symbol overrides: code → merged-pool index (digits always come from base). */
+  currencySymbols?: string;
+  /** Optional full overrides (usually identical within a family). */
+  patterns?: string[];
+  symbols?: string[];
+}

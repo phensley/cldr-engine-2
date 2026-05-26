@@ -23,9 +23,14 @@
  * construction, so per-client caches already have app lifetime in the
  * intended usage.
  */
-import { decodeLocalePack } from '@cldr/internal-core';
-import type { DecodedLocalePack, LocalePack } from '@cldr/internal-core';
+import { decodeLocalePack, mergeVariantDelta } from '@cldr/internal-core';
+import type { DecodedLocalePack, LocalePack, VariantDelta } from '@cldr/internal-core';
 import { resolveLocale } from './locale.js';
+
+/** A configured pack entry: a full locale pack or a family-variant delta. */
+export type PackEntry = LocalePack | VariantDelta;
+
+const isDelta = (e: PackEntry): e is VariantDelta => 'base' in e;
 
 export interface CldrConfig<L extends string, C> {
   lazy: boolean;
@@ -36,7 +41,12 @@ export interface CldrConfig<L extends string, C> {
    * Absent entirely when no selected feature needs locale data (a
    * decimal-only client ships zero pack bytes).
    */
-  packs?: Record<L, LocalePack | (() => Promise<LocalePack>)>;
+  /**
+   * Pack entries per tag — configured locales, plus any extra family
+   * base tags the generator's layout selection injects (the base is
+   * resolvable for delta merges but not part of the locale union).
+   */
+  packs?: Record<string, PackEntry | (() => Promise<PackEntry>)>;
   /** Assemble the per-locale feature namespace once, from decoded data. */
   build: (pack: DecodedLocalePack | undefined, locale: L) => C;
 }
@@ -51,6 +61,36 @@ export const createCldr = <L extends string, C>(config: CldrConfig<L, C>): Cldr<
   const contexts = new Map<L, C>();
   const loaded = new Set<L>();
 
+  /** Decode-or-merge a tag's pack once (family deltas materialize here). */
+  const ensureDecoded = (tag: L): DecodedLocalePack => {
+    let d = decoded.get(tag);
+    if (d !== undefined) {
+      return d;
+    }
+    const entry = config.packs![tag] as PackEntry;
+    d = isDelta(entry) ? mergeVariantDelta(ensureDecoded(entry.base as L), entry) : decodeLocalePack(entry as LocalePack);
+    decoded.set(tag, d);
+    return d;
+  };
+
+  /** Preload one tag's pack (async loader); deltas materialize against their base. */
+  const doPreload = async (tag: L): Promise<void> => {
+    if (config.packs === undefined || !config.lazy || loaded.has(tag)) {
+      return; // eager: packs are static imports — the seam is a no-op
+    }
+    const entry = await (config.packs[tag] as () => Promise<PackEntry>)();
+    loaded.add(tag);
+    if (isDelta(entry)) {
+      // a variant's base must be materialized first
+      if (!decoded.has(entry.base as L)) {
+        await doPreload(entry.base as L);
+      }
+      decoded.set(tag, mergeVariantDelta(decoded.get(entry.base as L)!, entry));
+    } else {
+      decoded.set(tag, decodeLocalePack(entry));
+    }
+  };
+
   return {
     get(locale: L): C {
       const tag = resolveLocale(locale, config.locales);
@@ -59,24 +99,12 @@ export const createCldr = <L extends string, C>(config: CldrConfig<L, C>): Cldr<
       }
       let context = contexts.get(tag);
       if (context === undefined) {
-        let d: DecodedLocalePack | undefined = decoded.get(tag);
-        if (d === undefined && config.packs !== undefined) {
-          d = decodeLocalePack(config.packs[tag] as LocalePack);
-          decoded.set(tag, d);
-        }
+        const d = config.packs === undefined ? undefined : ensureDecoded(tag);
         context = config.build(d, tag);
         contexts.set(tag, context);
       }
       return context;
     },
-    async preload(locale: L): Promise<void> {
-      const tag = resolveLocale(locale, config.locales);
-      if (config.packs === undefined || !config.lazy || loaded.has(tag)) {
-        return;
-      }
-      const loader = config.packs[tag] as () => Promise<LocalePack>;
-      decoded.set(tag, decodeLocalePack(await loader()));
-      loaded.add(tag);
-    },
+    preload: doPreload,
   };
 };

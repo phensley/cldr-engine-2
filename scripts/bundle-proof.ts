@@ -67,6 +67,11 @@ const cases: HarnessCase[] = [
     app: (ctx: string) => [decimalApp(ctx), currencyApp(ctx)].join('\n'),
   },
   {
+    name: 'family-en-eager',
+    config: { locales: ['en', 'en-GB', 'en-AU', 'en-CA'], features: { currency: true } },
+    app: currencyApp,
+  },
+  {
     name: 'all-lazy',
     config: { locales: { lazy: true }, features: { decimal: true, currency: true } },
     lazy: true,
@@ -175,6 +180,17 @@ for (const c of cases) {
       assert(text.includes(SENTINELS[tag]), `all-4-eager: "${SENTINELS[tag]}" present`);
     }
   }
+  if (c.name === 'family-en-eager') {
+    // layout selection: base + per-variant deltas — the FULL variant packs
+    // must be absent from the graph
+    assert(hasPack(inputs, 'en001'), 'family: base en-001 in graph');
+    for (const delta of ['en', 'enGB', 'enAU', 'enCA']) {
+      assert(inputs.some((p) => p.includes(`/delta/${delta}.ts`) || p.includes(`/delta/${delta}.js`)), `family: delta ${delta} in graph`);
+    }
+    for (const full of ['en', 'enGB', 'enAU', 'enCA']) {
+      assert(!hasPack(inputs, full), `family: full ${full} pack absent`);
+    }
+  }
   if (c.name === 'all-lazy') {
     assert(files.length > 1, 'lazy: bundler split into multiple chunks');
     assert(hasPack(inputs, 'de') && hasPack(inputs, 'zh'), 'lazy: every pack is a chunk source');
@@ -198,7 +214,8 @@ for (const c of cases) {
     assert(files.length - 1 === manifest.locales.length, `lazy: one chunk per locale (${files.length - 1} vs ${manifest.locales.length})`);
     const chunkTexts = files.filter((f, idx) => idx !== entryIdx).map((f) => readFileSync(join(tmp, c.name, 'out', f), 'utf8'));
     for (const t of chunkTexts) {
-      assert(Object.values(SENTINELS).some((n) => t.includes(n)), 'lazy: every locale chunk carries pool text');
+      // full packs carry pool text; family-delta chunks are tiny by design
+      assert(Object.values(SENTINELS).some((n) => t.includes(n)) || t.length < 4096, 'lazy: every locale chunk carries pool text or is a small delta');
     }
     for (const n of Object.values(SENTINELS)) {
       assert(chunkTexts.some((t) => t.includes(n)), `lazy: "${n}" present in some chunk`);
@@ -207,7 +224,11 @@ for (const c of cases) {
   // the numeric stress pack is never consumed by any feature
   assert(inGraph('/packs/numeric').length === 0, `${c.name}: numeric pack never in graph`);
 
-  if (prevBytes > 0) {
+  if (c.name === 'family-en-eager') {
+    // the delta win: 4 family locales (base + 3 deltas) must beat the previous
+    // config's 4 independent locales on bytes
+    assert(total < prevBytes, `family-en-eager: deltas smaller than 4 full locales (${total} < ${prevBytes}?)`);
+  } else if (prevBytes > 0) {
     assert(total > prevBytes, `${c.name}: bytes > previous config (scaling with config, not library)`);
   }
   prevBytes = total;

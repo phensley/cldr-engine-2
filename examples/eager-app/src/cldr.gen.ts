@@ -15,8 +15,10 @@ const decimal = makeDecimalFactory({
 });
 
 import type { DecodedLocalePack } from '@phensley/cldr';
-import { en } from '@phensley/cldr/packs/en';
 import { de } from '@phensley/cldr/packs/de';
+import { en } from '@phensley/cldr/packs/delta/en';
+import { enGB } from '@phensley/cldr/packs/delta/enGB';
+import { en001 } from '@phensley/cldr/packs/en001';
 import { fr } from '@phensley/cldr/packs/fr';
 
 const build = (pack: DecodedLocalePack | undefined) => ({
@@ -26,7 +28,7 @@ const build = (pack: DecodedLocalePack | undefined) => ({
 
 export const cldr = createCldr({
   lazy: false,
-  locales: ["en","de","fr"] as const,
-  packs: { "en": en, "de": de, "fr": fr },
+  locales: ["en","en-GB","de","fr"] as const,
+  packs: { "en": en, "en-GB": enGB, "de": de, "fr": fr, "en-001": en001 },
   build,
 });

@@ -23,7 +23,7 @@ const build = (pack: DecodedLocalePack | undefined) => ({
 const client = createCldr({
   lazy: true,
   locales: ["ar","de","en","en-001","en-AU","en-CA","en-GB","fr","hi","ru","zh"] as const,
-  packs: { "ar": () => import('@phensley/cldr/packs/ar').then((m) => m.ar), "de": () => import('@phensley/cldr/packs/de').then((m) => m.de), "en": () => import('@phensley/cldr/packs/en').then((m) => m.en), "en-001": () => import('@phensley/cldr/packs/en001').then((m) => m.en001), "en-AU": () => import('@phensley/cldr/packs/enAU').then((m) => m.enAU), "en-CA": () => import('@phensley/cldr/packs/enCA').then((m) => m.enCA), "en-GB": () => import('@phensley/cldr/packs/enGB').then((m) => m.enGB), "fr": () => import('@phensley/cldr/packs/fr').then((m) => m.fr), "hi": () => import('@phensley/cldr/packs/hi').then((m) => m.hi), "ru": () => import('@phensley/cldr/packs/ru').then((m) => m.ru), "zh": () => import('@phensley/cldr/packs/zh').then((m) => m.zh) },
+  packs: { "ar": () => import('@phensley/cldr/packs/ar').then((m) => m.ar), "de": () => import('@phensley/cldr/packs/de').then((m) => m.de), "en": () => import('@phensley/cldr/packs/delta/en').then((m) => m.en), "en-001": () => import('@phensley/cldr/packs/en001').then((m) => m.en001), "en-AU": () => import('@phensley/cldr/packs/delta/enAU').then((m) => m.enAU), "en-CA": () => import('@phensley/cldr/packs/delta/enCA').then((m) => m.enCA), "en-GB": () => import('@phensley/cldr/packs/delta/enGB').then((m) => m.enGB), "fr": () => import('@phensley/cldr/packs/fr').then((m) => m.fr), "hi": () => import('@phensley/cldr/packs/hi').then((m) => m.hi), "ru": () => import('@phensley/cldr/packs/ru').then((m) => m.ru), "zh": () => import('@phensley/cldr/packs/zh').then((m) => m.zh) },
   build,
 });
 
