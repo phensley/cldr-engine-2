@@ -27,6 +27,10 @@ export const miniCldr: Dataset = {
         scripts: scripts[locale],
         patterns: patterns[locale],
         symbols: symbols[locale],
+        // fixture plurals: en gets a minimal cardinal rule so the OFFLINE
+        // compile round-trip exercises the plural stream; other locales are
+        // other-only (the committed REAL packs carry the full rules)
+        plural: locale === 'en' ? { cardinal: { one: 'n = 1', other: '' }, ordinal: {} } : { cardinal: {}, ordinal: {} },
       },
     ]),
   ),

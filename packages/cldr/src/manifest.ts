@@ -30,7 +30,7 @@ export interface FeatureManifest {
   /** True when the feature needs the locale's decoded pack. */
   needsLocaleData: boolean;
   /** Runtime factory the generated client assembles this feature with. */
-  factory: 'makeDecimalFactory' | 'makeCurrencyFactory';
+  factory: 'makeDecimalFactory' | 'makeCurrencyFactory' | 'makePluralFactory';
 }
 
 export interface Manifest {
@@ -66,6 +66,14 @@ export const manifest: Manifest = {
         format: { specifier: '@phensley/cldr/currency/format', exportName: 'format' },
         symbol: { specifier: '@phensley/cldr/currency/symbol', exportName: 'symbol' },
         fractionDigits: { specifier: '@phensley/cldr/currency/fraction-digits', exportName: 'fractionDigits' },
+      },
+    },
+    plural: {
+      factory: 'makePluralFactory',
+      data: ['plural'],
+      needsLocaleData: true,
+      slots: {
+        select: { specifier: '@phensley/cldr/plural/select', exportName: 'select' },
       },
     },
   },

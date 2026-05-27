@@ -50,6 +50,8 @@ const LOCALES = ['en', 'en-001', 'en-GB', 'en-AU', 'en-CA', 'fr', 'de', 'zh', 'a
 const FILES = [
   'cldr-core/supplemental/currencyData.json',
   'cldr-core/supplemental/numberingSystems.json',
+  'cldr-core/supplemental/plurals.json',
+  'cldr-core/supplemental/ordinals.json',
   ...LOCALES.flatMap((l) => [
     `cldr-localenames-full/main/${l}/languages.json`,
     `cldr-localenames-full/main/${l}/scripts.json`,

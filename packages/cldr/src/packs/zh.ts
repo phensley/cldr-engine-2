@@ -1432,5 +1432,17 @@ export const zh: LocalePack = {
     ",",
     "-",
     "%"
-  ]
+  ],
+  "plural": {
+    "cardinal": [
+      1,
+      5,
+      0
+    ],
+    "ordinal": [
+      1,
+      5,
+      0
+    ]
+  }
 };

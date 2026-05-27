@@ -254,8 +254,11 @@ export const generate = (config: CldrConfig): string => {
 
   const buildParts: string[] = [];
   for (const [feature, r] of resolved) {
-    if (manifest.features[feature].factory === 'makeDecimalFactory') {
+    const factory = manifest.features[feature].factory;
+    if (factory === 'makeDecimalFactory') {
       buildParts.push(`${feature},`);
+    } else if (factory === 'makePluralFactory') {
+      buildParts.push(`${feature}: makePluralFactory(pack!, ${renderInline(r.tree)}),`);
     } else {
       buildParts.push(`${feature}: makeCurrencyFactory(pack!, ${renderInline(r.tree)}),`);
     }

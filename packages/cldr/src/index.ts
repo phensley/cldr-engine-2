@@ -8,7 +8,7 @@
  * imports, so only selected methods enter a bundle.
  */
 export * from './api.js';
-export { makeCurrencyFactory, makeDecimalFactory } from './factory.js';
+export { makeCurrencyFactory, makeDecimalFactory, makePluralFactory } from './factory.js';
 export { createCldr } from './client.js';
 export type { Cldr, CldrConfig, PackEntry } from './client.js';
 export type { DecodedLocalePack } from '@cldr/internal-core';

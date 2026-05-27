@@ -72,6 +72,26 @@ export interface LocaleData {
   patterns: NumberPatterns;
   /** Number symbols for the default numbering system. */
   symbols: NumberSymbols;
+  /**
+   * Plural rules (CLDR condition strings, samples stripped, resolved
+   * through the parent chain; empty records = other-only). Categories
+   * present per locale; a locale absent from CLDR's tables ships {}.
+   */
+  plural: PluralRulesData;
+}
+
+/**
+ * Plural categories (wire order, from internal-core) + per-locale rules.
+ */
+import { PLURAL_CATEGORIES } from '@cldr/internal-core';
+import type { PluralCategory } from '@cldr/internal-core';
+export type { PluralCategory } from '@cldr/internal-core';
+export { PLURAL_CATEGORIES };
+
+/** Per-locale plural rules: category → CLDR condition ('' = always). */
+export interface PluralRulesData {
+  cardinal: Partial<Record<PluralCategory, string>>;
+  ordinal: Partial<Record<PluralCategory, string>>;
 }
 
 /** The whole dataset: per-locale data + one shared numeric table. */

@@ -12,7 +12,7 @@
  * sub-namespace).
  */
 import type { DecimalInstance, DecimalSelection } from './api.js';
-import type { CurrencyInstance, CurrencySelection } from './api.js';
+import type { CurrencyInstance, CurrencySelection, PluralInstance, PluralSelection, PluralState } from './api.js';
 import type { DecodedLocalePack } from '@cldr/internal-core';
 import { parseDecimal } from './decimal/state.js';
 import type { DecimalArg, DecimalState } from './decimal/state.js';
@@ -91,6 +91,35 @@ export const makeCurrencyFactory = <M extends CurrencySelection>(pack: DecodedLo
         writable: true,
       });
       return inst as unknown as CurrencyInstance<M>;
+    },
+  };
+};
+
+/**
+ * makePluralFactory — assembles a Plural factory per locale from the
+ * selected method functions (same shape as the currency factory: `pack`
+ * carries the decoded plural rules; instances hold { pack, amount }).
+ */
+export const makePluralFactory = <M extends PluralSelection>(pack: DecodedLocalePack, selected: M) => {
+  const top: Record<string, unknown> = {};
+  for (const [key, fn] of Object.entries(selected)) {
+    if (typeof fn === 'function') {
+      top[key] = function (this: { __s: PluralState }, ...args: unknown[]) {
+        return (fn as AnyFn)(this.__s, ...args);
+      };
+    }
+  }
+  Object.freeze(top);
+
+  return {
+    new: (amount: DecimalArg): PluralInstance<M> => {
+      const inst = Object.create(top) as Record<string, unknown> & { __s: PluralState };
+      Object.defineProperty(inst, '__s', {
+        value: { pack, amount: parseDecimal(amount) } satisfies PluralState,
+        enumerable: false,
+        writable: true,
+      });
+      return inst as unknown as PluralInstance<M>;
     },
   };
 };

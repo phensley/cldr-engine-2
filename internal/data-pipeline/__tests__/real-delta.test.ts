@@ -60,6 +60,7 @@ describe.skipIf(!hasCache)('family base + delta (layout selection)', () => {
     expect(valueMap(merged.scriptTrie, merged.pool)).toEqual(valueMap(expected.scriptTrie, expected.pool));
     expect(merged.patterns).toEqual(expected.patterns);
     expect(merged.symbols).toEqual(expected.symbols);
+    expect(JSON.stringify(merged.plural), `${tag}: plural rules`).toEqual(JSON.stringify(expected.plural));
 
     // currency records: every code in the full pack resolves identically
     for (const e of scanTrie(expected.currencyTrie)) {

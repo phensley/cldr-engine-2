@@ -15,6 +15,11 @@
  *   - patterns store the POSITIVE subpattern only (CLDR "standard" is
  *     `positive;negative`); the runtime's v1 negative rule stays
  *     minus-prefix (per-locale negative forms are a follow-up);
+ *   - plural rules come from cldr-core plurals.json (cardinal) +
+ *     ordinals.json (ordinal), resolved through the parent chain
+ *     (en-GB → en) and stripped of the '@integer/@decimal' SAMPLE lists
+ *     (not part of the conditions); a locale absent from the tables is
+ *     other-only;
  *   - the shared numeric table stays the mini-cldr fixture (no real
  *     standalone numeric table in v1 — real fraction digits ride in the
  *     currency table; plans/real-cldr-compiler.md §2.5).
@@ -29,7 +34,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { miniCldr } from './index.js';
-import type { CurrencyEntry, Dataset, LocaleData, NumberPatterns, NumberSymbols } from './types.js';
+import type { CurrencyEntry, Dataset, LocaleData, NumberPatterns, NumberSymbols, PluralCategory, PluralRulesData } from './types.js';
 
 export const CLDR_VERSION = '48.2.1';
 
@@ -106,7 +111,40 @@ const buildLocale = (
       fractionDigits: digits === undefined ? 2 : Number(digits),
     };
   }
-  return { territories, languages, scripts, currencies, patterns, symbols };
+
+  const plural = resolvePluralRules(locale);
+  return { territories, languages, scripts, currencies, patterns, symbols, plural };
+};
+
+/**
+ * CLDR plural tables are keyed by LANGUAGE (en-001/en-GB inherit en;
+ * locales without entries are other-only). Sample lists after '@' are
+ * not part of the conditions and are stripped.
+ */
+interface PluralTable {
+  [tag: string]: Record<string, string> | undefined;
+}
+
+const conditionOnly = (rule: string): string => rule.split('@')[0].trim();
+
+const resolvePluralRules = (locale: string): PluralRulesData => {
+  const lang = locale.split('-')[0];
+  const read = (file: string): PluralTable =>
+    (readJson(file) as any).supplemental[file === 'cldr-core/supplemental/plurals.json' ? 'plurals-type-cardinal' : 'plurals-type-ordinal'] as PluralTable;
+  const pick = (file: string): Partial<Record<PluralCategory, string>> => {
+    const table = read(file);
+    const raw = table[locale] ?? table[lang];
+    if (raw === undefined) {
+      return {};
+    }
+    const out: Partial<Record<PluralCategory, string>> = {};
+    for (const [key, rule] of Object.entries(raw)) {
+      const cat = key.replace(/^pluralRule-count-/, '') as PluralCategory;
+      out[cat] = conditionOnly(rule);
+    }
+    return out;
+  };
+  return { cardinal: pick('cldr-core/supplemental/plurals.json'), ordinal: pick('cldr-core/supplemental/ordinals.json') };
 };
 
 /**

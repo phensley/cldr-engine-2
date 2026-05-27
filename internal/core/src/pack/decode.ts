@@ -11,6 +11,8 @@ import { addKey, newTrie } from '../trie/build.js';
 import { encodeTrie } from '../trie/encode.js';
 import { scanTrie } from '../trie/scan.js';
 import { searchTrie } from '../trie/search.js';
+import { decodePluralRules } from './plural.js';
+import type { PluralRuleSet } from './plural.js';
 import type { LocalePack, NumericPack, VariantDelta } from './types.js';
 
 /** Decoded wire structures, ready for lookups. */
@@ -27,6 +29,8 @@ export interface DecodedLocalePack {
   patterns: string[];
   /** Fixed order: [decimal, group, minus, percent]. */
   symbols: string[];
+  /** Decoded plural rulesets. */
+  plural: { cardinal: PluralRuleSet; ordinal: PluralRuleSet };
 }
 
 export const decodeLocalePack = (pack: LocalePack): DecodedLocalePack => ({
@@ -38,6 +42,7 @@ export const decodeLocalePack = (pack: LocalePack): DecodedLocalePack => ({
   currencyTable: Array.from(decodeX85GVE16(pack.currencies.table)),
   patterns: pack.patterns,
   symbols: pack.symbols,
+  plural: { cardinal: decodePluralRules(pack.plural.cardinal), ordinal: decodePluralRules(pack.plural.ordinal) },
 });
 
 export interface DecodedNumericPack {
@@ -107,5 +112,9 @@ export const mergeVariantDelta = (base: DecodedLocalePack, delta: VariantDelta):
     currencyTable,
     patterns: delta.patterns ?? base.patterns,
     symbols: delta.symbols ?? base.symbols,
+    plural: {
+      cardinal: delta.plural?.cardinal !== undefined ? decodePluralRules(delta.plural.cardinal) : base.plural.cardinal,
+      ordinal: delta.plural?.ordinal !== undefined ? decodePluralRules(delta.plural.ordinal) : base.plural.ordinal,
+    },
   };
 };

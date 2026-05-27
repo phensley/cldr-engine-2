@@ -83,7 +83,7 @@ describe('generate — decimal-only (no locale data)', () => {
 describe('generate — validation', () => {
   test('unknown feature fails listing valid features', () => {
     expect(() => generate({ locales: ['en'], features: { calendar: true } })).toThrow(
-      /unknown feature "calendar" \(valid: decimal, currency\)/,
+      /unknown feature "calendar" \(valid: decimal, currency, plural\)/,
     );
   });
   test('unknown slot fails listing valid slots', () => {

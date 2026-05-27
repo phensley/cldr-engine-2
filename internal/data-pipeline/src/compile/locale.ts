@@ -18,6 +18,7 @@
 import { addKey, encodeTrie, newTrie } from '@cldr/internal-core';
 import type { LocaleData } from '../dataset/types.js';
 import type { LocalePack } from '../pack/types.js';
+import { encodePluralRules } from './plural.js';
 import { packU16 } from './pool.js';
 
 const byKey = <T>(obj: Record<string, T>) => Object.keys(obj).sort().map((k) => [k, obj[k]] as const);
@@ -69,5 +70,9 @@ export const compileLocale = (data: LocaleData): LocalePack => {
     currencies: { trie: packU16(currencyNodes), table: packU16(currencyTable) },
     patterns: [data.patterns.decimal, data.patterns.percent, data.patterns.currency],
     symbols: [data.symbols.decimal, data.symbols.group, data.symbols.minus, data.symbols.percent],
+    plural: {
+      cardinal: encodePluralRules(data.plural.cardinal),
+      ordinal: encodePluralRules(data.plural.ordinal),
+    },
   };
 };

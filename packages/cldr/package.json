@@ -48,6 +48,10 @@
       "types": "./dist/currency/fraction-digits.d.ts",
       "default": "./dist/currency/fraction-digits.js"
     },
+    "./plural/select": {
+      "types": "./dist/plural/select.d.ts",
+      "default": "./dist/plural/select.js"
+    },
     "./packs/*": {
       "types": "./dist/packs/*.d.ts",
       "default": "./dist/packs/*.js"

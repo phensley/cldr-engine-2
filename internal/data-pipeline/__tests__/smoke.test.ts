@@ -36,6 +36,7 @@ describe('workspace wiring', () => {
           scripts: { Latn: 'Latin' },
           patterns: { decimal: '#,##0.###', percent: '#,##0%', currency: '¤#,##0.00' },
           symbols: { decimal: '.', group: ',', minus: '-', percent: '%' },
+          plural: { cardinal: {}, ordinal: {} },
         },
       },
       numeric: { keys: ['UTC+0'], values: [0, 65535] },

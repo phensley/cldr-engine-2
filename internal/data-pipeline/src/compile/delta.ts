@@ -7,6 +7,7 @@
  * never vary, so currency deltas carry symbol overrides only.
  */
 import { addKey, encodeTrie, newTrie } from '@cldr/internal-core';
+import { encodePluralRules } from './plural.js';
 import type { LocaleData } from '../dataset/types.js';
 import type { VariantDelta } from '../pack/types.js';
 import { packU16 } from './pool.js';
@@ -32,6 +33,9 @@ export const localeDistance = (a: LocaleData, b: LocaleData): number => {
     n++;
   }
   if (JSON.stringify(a.symbols) !== JSON.stringify(b.symbols)) {
+    n++;
+  }
+  if (JSON.stringify(a.plural) !== JSON.stringify(b.plural)) {
     n++;
   }
   return n;
@@ -98,6 +102,12 @@ export const buildVariantDelta = (base: LocaleData, variant: LocaleData, basePoo
 
   const patterns = JSON.stringify(base.patterns) !== JSON.stringify(variant.patterns) ? [variant.patterns.decimal, variant.patterns.percent, variant.patterns.currency] : undefined;
   const symbols = JSON.stringify(base.symbols) !== JSON.stringify(variant.symbols) ? [variant.symbols.decimal, variant.symbols.group, variant.symbols.minus, variant.symbols.percent] : undefined;
+  // plural rules are language-level: en-GB inherits en, so family deltas
+  // normally carry no override — the field exists for correctness anyway
+  const plural =
+    JSON.stringify(base.plural) !== JSON.stringify(variant.plural)
+      ? { cardinal: Object.keys(variant.plural.cardinal).length > 0 ? encodePluralRules(variant.plural.cardinal) : [], ordinal: Object.keys(variant.plural.ordinal).length > 0 ? encodePluralRules(variant.plural.ordinal) : [] }
+      : undefined;
 
   // NOTE: all sparseTrie calls above MUTATE poolAdd — the conditional
   // spread below must therefore come after them (property evaluation is
@@ -110,6 +120,7 @@ export const buildVariantDelta = (base: LocaleData, variant: LocaleData, basePoo
     currencySymbols,
     patterns,
     symbols,
+    plural,
     ...(poolAdd.length > 0 ? { poolAdd } : {}),
   };
 };

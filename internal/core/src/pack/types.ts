@@ -54,6 +54,16 @@ export interface LocalePack {
    * Keep order in sync with compile/locale.ts + decode.ts.
    */
   symbols: string[];
+  /**
+   * Plural rules (wire v1, feature 'plural'): compiled CLDR conditions,
+   * flat u16 streams (see data-pipeline compile/plural.ts for the
+   * layout). Empty stream = no rules (other-only).
+   */
+  plural: {
+    /** Flat rule stream (plain numbers — mod values can exceed u16, e.g. fr's 1_000_000). */
+    cardinal: number[];
+    ordinal: number[];
+  };
 }
 
 /** Locale-independent pack (the shared numeric table). */
@@ -63,6 +73,14 @@ export interface NumericPack {
   /** X85(GVE16(u16[])) — parallel to keys. */
   values: string;
 }
+
+/**
+ * Plural categories in wire catCode order (= CLDR evaluation order).
+ * Shared by the compiler (encode codes), the decoder (map codes to
+ * names) and the runtime (return values).
+ */
+export const PLURAL_CATEGORIES = ['zero', 'one', 'two', 'few', 'many', 'other'] as const;
+export type PluralCategory = (typeof PLURAL_CATEGORIES)[number];
 
 /**
  * Family-variant delta (wire v1, generator layout selection — design
@@ -87,4 +105,9 @@ export interface VariantDelta {
   /** Optional full overrides (usually identical within a family). */
   patterns?: string[];
   symbols?: string[];
+  /** Optional plural-rules overrides (rules are language-level; rare in a family). */
+  plural?: {
+    cardinal?: number[];
+    ordinal?: number[];
+  };
 }

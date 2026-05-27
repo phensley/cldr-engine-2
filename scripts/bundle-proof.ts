@@ -57,6 +57,11 @@ const cases: HarnessCase[] = [
     app: decimalApp,
   },
   {
+    name: 'plural-en',
+    config: { locales: ['en'], features: { plural: true } },
+    app: (ctx: string) => `out.push(${ctx}.plural.new('2').select());`,
+  },
+  {
     name: 'currency-en-fr',
     config: { locales: ['en', 'fr'], features: { currency: true } },
     app: currencyApp,
@@ -155,7 +160,9 @@ for (const c of cases) {
   if (c.name === 'decimal-only-en') {
     assert(inGraph('/packs/').length === 0, 'decimal-only: no pack modules in graph');
     assert(inGraph('/currency/').length === 0, 'decimal-only: no currency modules in graph');
+    assert(inGraph('/plural/').length === 0, 'decimal-only: no plural modules in graph');
     assert(!text.includes('makeCurrencyFactory'), 'decimal-only: currency factory not referenced');
+    assert(!text.includes('makePluralFactory'), 'decimal-only: plural factory not referenced');
     for (const name of Object.values(SENTINELS)) {
       assert(!text.includes(name), `decimal-only: no locale data ("${name}")`);
     }
@@ -179,6 +186,12 @@ for (const c of cases) {
     for (const tag of ['en', 'fr', 'de', 'zh'] as const) {
       assert(text.includes(SENTINELS[tag]), `all-4-eager: "${SENTINELS[tag]}" present`);
     }
+  }
+  if (c.name === 'plural-en') {
+    assert(inGraph('/packs/en.ts').length === 1 || inGraph('/packs/en.js').length === 1, 'plural-en: en pack in graph');
+    assert(inGraph('/plural/select').length === 1, 'plural-en: select module in graph');
+    assert(inGraph('/currency/').length === 0, 'plural-en: no currency modules in graph');
+    assert(!text.includes('makeCurrencyFactory'), 'plural-en: currency factory absent');
   }
   if (c.name === 'family-en-eager') {
     // layout selection: base + per-variant deltas — the FULL variant packs
@@ -224,6 +237,12 @@ for (const c of cases) {
   // the numeric stress pack is never consumed by any feature
   assert(inGraph('/packs/numeric').length === 0, `${c.name}: numeric pack never in graph`);
 
+  if (c.name === 'plural-en') {
+    assert(inGraph('/packs/en.ts').length === 1 || inGraph('/packs/en.js').length === 1, 'plural-en: en pack in graph');
+    assert(inGraph('/plural/select').length === 1, 'plural-en: select module in graph');
+    assert(inGraph('/currency/').length === 0, 'plural-en: no currency modules in graph');
+    assert(!text.includes('makeCurrencyFactory'), 'plural-en: currency factory absent');
+  }
   if (c.name === 'family-en-eager') {
     // the delta win: 4 family locales (base + 3 deltas) must beat the previous
     // config's 4 independent locales on bytes

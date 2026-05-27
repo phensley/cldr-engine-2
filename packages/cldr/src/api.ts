@@ -9,6 +9,7 @@
  * type and the bundle.
  */
 import type { DecimalArg, DecimalLike, DecimalState } from './decimal/state.js';
+import type { DecodedLocalePack } from '@cldr/internal-core';
 import type { ScientificOptions } from './decimal/format/scientific.js';
 import type { CurrencyState } from './currency/state.js';
 
@@ -54,3 +55,24 @@ export type CurrencySelection = Partial<CurrencyApi>;
 export type CurrencyInstance<M extends CurrencySelection> = {
   [K in keyof M]-?: M[K] extends (state: CurrencyState, ...args: infer A) => infer R ? (...args: A) => R : never;
 };
+
+// ---------------------------------------------------------------------------
+// plural
+
+/** The plural instance state: decoded pack + the amount being categorized. */
+export interface PluralState {
+  pack: DecodedLocalePack;
+  amount: DecimalState;
+}
+
+export interface PluralApi {
+  /** The amount's plural category ('zero' | 'one' | 'two' | 'few' | 'many' | 'other'). */
+  select?: (state: PluralState, type?: 'cardinal' | 'ordinal') => string;
+}
+
+export type PluralSelection = Partial<PluralApi>;
+
+export type PluralInstance<M extends PluralSelection> = {
+  [K in keyof M]-?: M[K] extends (state: PluralState, ...args: infer A) => infer R ? (...args: A) => R : never;
+};
+

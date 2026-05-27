@@ -13,3 +13,4 @@ export * from './trie/scan.js';
 export * from './trie/search.js';
 export * from './pack/types.js';
 export * from './pack/decode.js';
+export * from './pack/plural.js';

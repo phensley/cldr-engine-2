@@ -64,6 +64,7 @@ export const PKG_PATH = join(ROOT, 'packages', 'cldr', 'package.json');
 const FEATURE_META: Record<string, { data: string[]; needsLocaleData: boolean }> = {
   decimal: { data: [], needsLocaleData: false },
   currency: { data: ['currencies', 'patterns', 'pool'], needsLocaleData: true },
+  plural: { data: ['plural'], needsLocaleData: true },
 };
 
 // ---------------------------------------------------------------------------
@@ -341,7 +342,7 @@ export interface FeatureManifest {
   /** True when the feature needs the locale's decoded pack. */
   needsLocaleData: boolean;
   /** Runtime factory the generated client assembles this feature with. */
-  factory: 'makeDecimalFactory' | 'makeCurrencyFactory';
+  factory: 'makeDecimalFactory' | 'makeCurrencyFactory' | 'makePluralFactory';
 }
 
 export interface Manifest {
