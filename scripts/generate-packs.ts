@@ -16,6 +16,7 @@ import { fileURLToPath } from 'node:url';
 import {
   compileDataset,
   localeIdentifier,
+  packU16,
   renderIndexModule,
   renderLocaleModule,
   renderNumericModule,
@@ -78,6 +79,34 @@ for (const members of families.values()) {
   }
 }
 
+// ---------------------------------------------------------------------------
+// zone-offset table (the deferred unit+offset numeric header, design doc
+// §2.4): platform tzdb at a fixed instant, 900s units + bias 50 (the
+// measured rule; exact for every modern tzdb offset). Committed + frozen;
+// a tzdb update on this machine flips it on regenerate (recorded).
+const zones = (() => {
+  const keys = Intl.supportedValuesOf('timeZone').sort();
+  const fmt = new Intl.DateTimeFormat('en-US', { timeZone: 'UTC', timeZoneName: 'longOffset' });
+  void fmt;
+  const offsets: number[] = [];
+  for (const zone of keys) {
+    const parts = new Intl.DateTimeFormat('en-US', { timeZone: zone, timeZoneName: 'longOffset' }).formatToParts(new Date('2025-01-15T12:00:00Z'));
+    const name = parts.find((p) => p.type === 'timeZoneName')?.value ?? 'GMT';
+    const m = /^GMT([+-])(\d{1,2})(?::(\d{2}))?/.exec(name);
+    let secs = 0;
+    if (m !== null) {
+      secs = (Number(m[2]) * 60 + (m[3] ? Number(m[3]) : 0)) * 60 * (m[1] === '-' ? -1 : 1);
+    }
+    offsets.push(Math.round(secs / 900) + 50);
+  }
+  return { keys, unit: 900, bias: 50, values: packU16(offsets) };
+})();
+const zonesModule = `${LAYOUT_HEADER}\nimport type { ZonesTable } from '@cldr/internal-core';\n\nexport const zones: ZonesTable = ${JSON.stringify(zones, null, 2)};\n`;
+for (const outDir of outDirs) {
+  writeFileSync(join(outDir, 'zones.ts'), zonesModule);
+}
+console.log(`generate-packs: zones table — ${zones.keys.length} zones, unit ${zones.unit}s, bias ${zones.bias}`);
+
 const layoutModule = `${LAYOUT_HEADER}\nexport const layout: Record<string, { kind: 'full' } | { kind: 'delta'; base: string }> = ${JSON.stringify(layout, null, 2)};\n`;
 for (const outDir of outDirs) {
   writeFileSync(join(outDir, 'layout.ts'), layoutModule);
@@ -96,7 +125,7 @@ for (const outDir of outDirs) {
       continue;
     }
     const stem = f.replace(/\.ts$/, '');
-    if (stem !== 'numeric' && stem !== 'packs' && stem !== 'index' && stem !== 'layout' && !stems.has(stem)) {
+    if (stem !== 'numeric' && stem !== 'packs' && stem !== 'index' && stem !== 'layout' && stem !== 'zones' && !stems.has(stem)) {
       rmSync(join(outDir, f));
       console.log(`generate-packs: removed stale ${join(outDir, f)}`);
     }

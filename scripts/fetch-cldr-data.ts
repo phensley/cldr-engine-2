@@ -52,12 +52,15 @@ const FILES = [
   'cldr-core/supplemental/numberingSystems.json',
   'cldr-core/supplemental/plurals.json',
   'cldr-core/supplemental/ordinals.json',
+  'cldr-core/supplemental/weekData.json',
   ...LOCALES.flatMap((l) => [
     `cldr-localenames-full/main/${l}/languages.json`,
     `cldr-localenames-full/main/${l}/scripts.json`,
     `cldr-localenames-full/main/${l}/territories.json`,
     `cldr-numbers-full/main/${l}/numbers.json`,
     `cldr-numbers-full/main/${l}/currencies.json`,
+    `cldr-dates-full/main/${l}/ca-gregorian.json`,
+    `cldr-dates-full/main/${l}/timeZoneNames.json`,
   ]),
 ];
 

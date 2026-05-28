@@ -16,6 +16,9 @@ describe('generated eager client (examples/eager-app)', () => {
     expect(cldr.get('en').plural.new('1').select()).toBe('one');
     expect(cldr.get('en').plural.new('2').select()).toBe('other');
     expect(cldr.get('ar').plural.new('3').select()).toBe('few');
+    expect(cldr.get('en').calendar.new(new Date('2025-03-04T12:00:00Z')).format()).toBe('Tuesday, March 4, 2025');
+    expect(cldr.get('en-GB').calendar.new(new Date('2025-03-04T12:00:00Z')).format('short')).toBe('04/03/2025');
+    expect(cldr.get('en').calendar.new(new Date('2025-01-15T12:00:00Z')).offset('America/New_York')).toBe('-05:00');
     expect(cldr.get('fr').currency.new('1234.5', 'EUR').format()).toBe('1\u202f234,50\u00a0€');
     expect(cldr.get('en').decimal.new('1.5').format.scientific()).toBe('1.5e+0');
     expect(cldr.get('en').decimal.new('2').min(1).compare('1')).toBe(0);

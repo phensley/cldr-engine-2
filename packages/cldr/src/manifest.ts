@@ -30,7 +30,7 @@ export interface FeatureManifest {
   /** True when the feature needs the locale's decoded pack. */
   needsLocaleData: boolean;
   /** Runtime factory the generated client assembles this feature with. */
-  factory: 'makeDecimalFactory' | 'makeCurrencyFactory' | 'makePluralFactory';
+  factory: 'makeDecimalFactory' | 'makeCurrencyFactory' | 'makePluralFactory' | 'makeCalendarFactory';
 }
 
 export interface Manifest {
@@ -66,6 +66,18 @@ export const manifest: Manifest = {
         format: { specifier: '@phensley/cldr/currency/format', exportName: 'format' },
         symbol: { specifier: '@phensley/cldr/currency/symbol', exportName: 'symbol' },
         fractionDigits: { specifier: '@phensley/cldr/currency/fraction-digits', exportName: 'fractionDigits' },
+      },
+    },
+    calendar: {
+      factory: 'makeCalendarFactory',
+      data: ['calendar'],
+      needsLocaleData: true,
+      slots: {
+        format: { specifier: '@phensley/cldr/calendar/format', exportName: 'format' },
+        monthName: { specifier: '@phensley/cldr/calendar/month-name', exportName: 'monthName' },
+        weekdayName: { specifier: '@phensley/cldr/calendar/weekday-name', exportName: 'weekdayName' },
+        firstDay: { specifier: '@phensley/cldr/calendar/first-day', exportName: 'firstDay' },
+        offset: { specifier: '@phensley/cldr/calendar/offset', exportName: 'offset' },
       },
     },
     plural: {

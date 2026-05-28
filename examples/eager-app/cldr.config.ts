@@ -9,5 +9,6 @@ export default defineConfig({
     decimal: { compare: true, min: true, format: { scientific: true } },
     currency: true,
     plural: true,
+    calendar: { format: true, monthName: true, weekdayName: true, firstDay: true, offset: true },
   },
 });

@@ -3,12 +3,102 @@
 import type { VariantDelta } from '@cldr/internal-core';
 export const enCA: VariantDelta = {
   "base": "en-001",
-  "territories": "((()G(.9mW<wh::>7)[.3|RG]4^VSo@lzv)BiMHQ@UN/vC(hhZ9+EqH)rniO<t{gb(_hQW(Cxu[)s3k*)]:JZ)]:MU)]:OcA.JoX=VO@iAKCr9)sa>4nm+_R(4In=IX,x<+KA0xBbb|.o-^I:()TV-?l-0z(EWlv(Cy@c)t@ZY(q[.)(CyFe)tRVnqC9SV)tg}V(((((",
-  "languages": "((((d()zeLGSP*lL_lx5)tr^[7QN;O+Eeke({QspG74O<r]Wt1M[u,@)xN8uHOh?*M)ud(s]o;bMDpbL<e]YPKROOwt*4WY@om{e(((((",
-  "currencySymbols": "(((;;<dhZF=K+]N>uxE`bA2nF>RU[d(am81(j2g-Q;euW@1:/2CCL,t)+RIek^MbBAnY^vB+?YU)E_uaChL.,jEme]C_}0{)h5@])hGOOoniu^859t`>9QL8@OX|](0DvB4zU(.?k^riD,tlt)[d]))[p/(<t{le(_hI/)AGl.(01Mx)[dn9*=>4y*a3Sv*)vy*A.V[*(D?k3+:AT?+t93>(01au*b/m1*XVt>(Dn3G(E*<:-OzmN)[]xr)^`I<@hm-s((1k>.p8Q:=:-U/6;K4d:/V+E?V}XPA5mAf@9dytMeCUi(4gSpDiD9/,RQu)@i)9w(MNo4FqicEGYSH)GwUy1)GhTn((LD<(N0AK-kj[7@i;E{AIom)I0}bOIh^zR)h+S7JlvZM(/>(5=s^nr@L<?v*+/x6KbRq_(OH4d1f]??=VbIt@MVb0(0i<6+q|KTM@pvq(Ci-AMwklm(P2kv=r>u:((YfI)ir3^=:,4h)I*G.P6{D{(Ps@.=w,,5/5?{7/mk6S(,y-4BM)6OCC3XrARfS|B+F|/j{^h_>Spqq(/P0u)@OcOjX,co,YoSq)Hn/+(YAgt(YTB^?4L*|D[mkX((8SRloHvXCC1/+m3m0.mrILL=qx(g(Z>EWnL{|PAefcU((8l_oP9B+AeSc[@3f91>870n+yp,1,].J2)[fsg)[fvh)[fy?>Rqnc@1NEiAf+s*>>?8i+y8p)(*6CNBdqD]CPk?*Bbe}+(COW)(COY:(Md^0(Mms3)[h25,YJ;i)R<4)(COf:(N0@;HmN>QI7tj1j*6rK((b,*@1mL,)dHh_@i/Xd=r:][Aefm+W`c?t.ShhA?6|9N@lLPc(0aAM6XDF/71seD)]9pG+B8MR@LN;y`wZY3+AG^sBbb|*aX;l7)]W;?Af+u2=rkIj_0Lh}(VTs5c7=[E3`psBcu]I*d<C]2>7=@m(CRg:(W6D@(WAh?@1m@(Q<XgY-XRNP(]Is^)[l{h+AMyoC((/+u6c>])[m.f(`6^w>U|<8>8[Ht-<M7H10cm)Bedui)[nC>)[dbCAg+B0BF[w|)@HXC(CU}A)qxrD)rIrQ(b)74(b2i)+B/Gu(_hFE(CqUI)[n[@,Zc/,V@QNj)[ojY)[olp=r:_[D`OXR>n`3t-s{+@.U2wND(8_pD{D3H(gtZ{(g}a|(h0e3)[pSq)[pW-,Z6pnAI`h,(CX5)Wtisj)qokQC/+tsCCWdv(hq?P<vOFg-WLi>.9w[L(*?RYCc^+-)dHko@1NIrAf+wxBH.4>]P<>m]mK2pAeiZ|(C[/}(qFO`=Unre@LaG|^cCN2^}b|(+BAT(C((/,__C8,)[sjv(/R={=YW?T>na9?9NF?5<*00IAP,nKC/S(pARJAvD.6Y4(2[9J+AMyj(d2:Wq_73G)[uiZ+K@hn@LN;zr[3NM<YRla>RUZts<o3?sY.ebA./M|s|8{`t:5>[>Rqsc@2pJ7u?V<ruZM=lAei^}(C^er(y=Wq@LQ*t(C^kt(yOIz(y[A{AeiTz5RR^J(C^w|(yw>{Q<4<K)IN`2(z)6M(z0k|y*xqzBGd;N)HR)w)@H[++:A<2(C_:G<v+=h,>y,..q3[HVBK/B)[zS4)[zVrA.{EqAIJW(JmDf8K+A*b>o7(<@@RNdL0OqHLf]:@bU1e|3(ke4,vF]C?6s9H@OG/K3b}K{);efQ?V1KY)I3M/);lSC);uW]nLKI8@1NSI)Hn>/o6??X(i?W0(Cg._)<M,fp1pyc)<bUZ)Aulz/.+t9AJ7z9CDwSC/f8+^=rk[p_/uIx)BSyF/.Vo_Q;.h9(hI/*)BpPO)ByGN0MlDj2wryZ=Y<-N><2f:7pD-s8Q@W0@Qw]5BLczO(0}Im@UMsrA5ZWi)]+^b)]+aT(`6eiBGb/|>o3jm)@H_h(CjDf)FBWQ)FI1a)FQxZ)FYt1)]+ym)]+|e+K@np@LN;|;wslU(`6etBcWvw>ns5G)G:,s=:YRbAf_rh(gzl|)GU>v>FYn_>[.Iu>ulMg?4Khu)H0@A?5vTx.9@IF2d{Aa(+jHmC,K++Dx4Kd)Ve]KBFIk9(_hNX(Coub@hp>u(_hNZ(Co{_)W;vm)]1PZ)]1SP+KA-wD[Z]3o-^F9Vx0(K=r:c;=r:gS(0ra(*a3K//.,QdD|oAZ(g`;6(Cs/^)a]:e(cy5W(Cs8a)axX]<XrojBbu20:_[In:zwSP-sUA/*3){*C{Hc6;[WfT5RReB(Csft)cX-{(/G*k.:3yh=:,:`*)Hmy)x,f4D@6Z5(Ct`4)fBE3=qx1j(CxYN)fKbK)fW5?)hG>C9F=*c==mqX=wj=@:f}93=B]*SBNS5lC0FYt(1L36>Rk:iCL.0,(RcCkTF1uD-kj:,=:ele=rI`t)kUOkUC.:J(CvUS+AMyk(_hD5(G>wx)]7}k)]8*o+KA6zCCC80VwahT(`6^3>Spnp>RmUO)@Hcr(XsLOX.0AZXA8zdX_;8uXuE[=)ly`c)q`YYQ;.U6)eai8)m<eh)]8Nx-r}x}<Y.{nBFl51ZkRX7[0n2o(Cw67<uGCh,?uuH0ce??(hI/*)nyg5`]Afw(hwM/)o5s7aC_Mq(i<`2)oH)5)oQd5*)Qss*3sL/(Cwj7)od;<bq]>:c6f83(((((",
+  "territories": "((()G(.9mW<wh::>7)[.3|RG]4^VSo@lzv)BiMHQ@UN/vC(hi89+EqH)x>G-<t{gb(_hR5(Cze9)xYH^)]<:8)]<=3)]<?@A.Jp6=VO@iAKCr9)y0ri+vav/(4In=IX,x<+KA0xBbb|/,7=aJ()TV-?l-0z(EWmS(C{0@)yg97(q[.)(C{6B)yy5L.Lok3)z7[4(((((",
+  "languages": "((((d()zeLGSP*lL_lx5)zB<97QN;O+Eeke({QtMG74O=/g84dM[u,@)xN9RHOh?^M)ud)0gNR>MDpbL<e]YPKROOx13jo6@om{e(((((",
+  "currencySymbols": "(((;;<dhZF=K+]N>uxE`bA2nF>RU[d(am81(j2g-Q;euW@1:/2CCL,t)+RIek^MbBAnY^vB+?YU)E_uaChL.,jEme]C_}0{)h5@])hGOOoniu^859t`>9QL8@OX|](0DvB4zU(.?k^riD,tlt)[mc*)[y5)<t{le(_hL0)]cu/(01Mx)x)z;*XY=z*|N]w*)vy*A.V[*(DHq4+U]aA,9T<?(01au*b/m1*XVt?(Dw9I(E3B;-l?yP)[]xr)^iO=@hm-s((1n?/5SZ;=:-U/6;K4d:/V+E?V}XPA5mAf@9dytMeCUi(4gSpDiD9/,RQu)@i)9w(N0=:HkbUQISL)/J6jc8)GhTn((LDC(NplY-kj[7@i;E{AIom)KF;a^K}rya)hl(>M,4D[(/>(<=s^nr@L<?v*+/x6MwgZm(P2_r1f]??=VbIt@MVb0(0i<6+q|a[OV.a)(Cj5aP7)k{(Ps@.=r?4A((Y{P)j[^e=:,4h)I*G.RL9/3(Q]k<=w,,5/5?{7/mk6S(,y-4BM)6OCC3XrARfS|B+F|/zIxpA>Spqq(/P0u)@O{Wm3[V),YoSq)Hn/+(Z5B.(ZGsf?4L*|D[mka((8lZoIxiaCC1/+oeF;>pLy?T=qx(g([1v`q(ToXAefc^((9.gr+i5;AeScd@3f91>870n+yp,1,].J2)[g5o)[g8p)[g;G>Rqnk@1NEqAf+s*@oo+q+y8p)(*6CNBdqD]CPk?*Bbe}+(COv3(COxD(NjD:(NsY=)[hP?,YJ;i)R<4)(CP.D(O5}EL)_C[LJ.o;yNPy|((b,*@1mL,)dHhj@i/Xo=r:]gAefm+[88N).ShhA?6|9N@lLPc(0aAM6XDF/71seD)];Ux+B8MR@LN;yehH6Q+AG^sBbb|*fI)HU)]W;NAf+uA=rkIj_0Lh}(X2xDh(+8d3`psBhfI|9i-19A>7=@m(CS>I(XjIO(XumN@1m@(Q<XgY-XRNP(^}xm)[mRw+AMyoC((/+y}Oq{)[m[u(`6_0>U|<8>8[Ht-<M7H10cm)Bedui)[nqM)[dbRAg+B0BF[w|)@HXR(CVTP)w-=u)wT>,(c]<C(cfn8+B/Gu(_hFT(CqUX)[o3O,Zc/,V@QNj)[pAi)[pD)=r:_kD`OXR>n`3t-s{+@.U2wND(8_pD{D3H(j3/:(j<5;(jE8H)[q>0)[qAB,Z6pnAI`h,(CXu>Wtj^))vz7,Ioh22J.=x5(k/if<vOFg-WLi>.9w[L(*?RYCc^+-)dHl.@1NJ1Af+x7BH.4>d:xR,dW1F/AeiZ|(C[p<(sZyu=Unre@LaG|eM)bGehH9R+BAT(C((/,fI)KV)[tT5(/R={=YW?T>na9?9NF?5<*00IAP,nKC/S(pARJAvD.6Y4(2[9J+AMyj(d2:Wxe8Ot)[vUq+K@hn@LN;zyb4kz<YRla>RUZtzBpOUz`0+xA./M|{,:Aw((UO1>Rqsy@2pJ8)-wM2)HnN+Aei^}(C_R2({[21@LQ*t(C_X4({mz:({yr;AeiTz5RR^a(C_e<(|>o;Q<4<K)IN`2(|Ffd(|NE=,oC,OBGd;N)HR)w)@H[A+:A<H(C_}^<v+=h,>y,..q3[HVBK/B)[{OO)[{S7A.{EqAIJW(SPyYSSeuuB>o7(W@@RNdTk.edUJ;.[kqFlC3(ke4,vF]C?6s9H@OG/K3b}K{)?)vq?V1KY)I3M/)?0dc)?9h|xIAbw@1NSz)Hn>/y35Wx(i?W0(Ch7()?h=/z.g<,)?|fz)E9}C/.+t9AJ7z9CDwSC/f8+}=rk[p_/uIx)Eo3f9+M2GQ;.h9(hI/*)F4ao)F=Wn:Jb^32wryZ=Y<-N><2f:7pD-s8Q@W0@Qw]5BLczO(0}Im@UMsrA5ZWi)],j,)],lu(`6f3BGb/|>o3jm)@H`2(CkP0)Ifnr)ImH+)Iv8{)J(4Q)]-/7)]-2/+K@np@LN;|F:/8@(`6f>BcWvw>ns5G)J^C=GRkuLAf_rh(gzl|)JyU@H_l:)Ht?l?I7}p1IL^4?)KSVb?5vTx.9@IF2d{Aa(+jHmC,K++Dx4Kd)ZsGsBFIk9(_hO*(Cq@3@hp>u(_hO,(CqF0)[Ib>)]2r,)]2tx+KA-wD[Z]4(CLF1Vx0(s=r:cV=r:g{(0ra(*a3K//.,QdD|oAZ(g`;6(Ct]3)f9>:(cy5W(Ctf6)fT]2<XrojBbu20HOBzCHk_.Q-sUA/*3){*C{Hc6IL?@U5RRen(Cu=I)h51P(/G*k.:3yh=:,:`*)Hmy)x,f4R0t56(Cv6`)juH_=qx1j(Cz@))k(ew)k48k)m-Gp9F=*c==mqX=wj=@:f}93=B]*SBNS5lC0FYt(1L36>Rk:iCL.0,(Sr0vd3kkK-kj:,=:ele=rI`t)pMfCe0h0Q(Cx6,+AMyk(_hD?(G>xR)]9^C)]9aG+KA6zCCC80feD^[(`6^B>Spnp>RmUO)@HdJ(Yf}Wgqj73h.rp<hKu.Mhc)Pl)qqv;)vj|4Q;.U6)eai8)r4{@)]:/P-r}x}<Y.{nBFl51jX6MfjtQ(v(Cxlf<uGCh,?uuH0ce??(hI/*)sq|doI{[O(hwM/)t.2fp1BCI(i<`2)t@>d)tIyd*)Qss*3sL/(CyIf)t[Pkq_@3iqzI-b(((((",
+  "calendar": {
+    "firstDay": 0,
+    "minDays": 1,
+    "weekendStart": 6,
+    "weekendEnd": 0,
+    "names": {
+      "monthsWide": [
+        593,
+        423,
+        825,
+        66,
+        837,
+        607,
+        605,
+        88,
+        1167,
+        981,
+        964,
+        340
+      ],
+      "monthsAbbr": [
+        592,
+        422,
+        823,
+        65,
+        837,
+        606,
+        604,
+        87,
+        1535,
+        980,
+        963,
+        339
+      ],
+      "daysWide": [
+        1252,
+        876,
+        1352,
+        1444,
+        1318,
+        441,
+        1156
+      ],
+      "daysAbbr": [
+        1250,
+        874,
+        1351,
+        1443,
+        1317,
+        440,
+        1154
+      ],
+      "daysNarrow": [
+        1105,
+        759,
+        1272,
+        1433,
+        1272,
+        410,
+        1105
+      ],
+      "erasWide": [
+        158,
+        60
+      ],
+      "erasAbbr": [
+        105,
+        1
+      ],
+      "am": 1536,
+      "pm": 1537
+    },
+    "dateFormats": [
+      "EEEE, MMMM d, y",
+      "MMMM d, y",
+      "MMM d, y",
+      "y-MM-dd"
+    ],
+    "timeFormats": [
+      "h:mm:ss a zzzz",
+      "h:mm:ss a z",
+      "h:mm:ss a",
+      "h:mm a"
+    ],
+    "hourFormat": "+HH:mm;-HH:mm",
+    "gmtFormat": "GMT{0}"
+  },
   "poolAdd": [
     "$",
     "Cg",
+    "Sep",
+    "a.m.",
+    "p.m.",
     "Micronesian region",
     "Antigua and Barbuda",
     "Bosnia and Herzegovina",

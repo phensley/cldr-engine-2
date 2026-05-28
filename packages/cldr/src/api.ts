@@ -9,7 +9,7 @@
  * type and the bundle.
  */
 import type { DecimalArg, DecimalLike, DecimalState } from './decimal/state.js';
-import type { DecodedLocalePack } from '@cldr/internal-core';
+import type { DecodedLocalePack, DecodedZonesTable } from '@cldr/internal-core';
 import type { ScientificOptions } from './decimal/format/scientific.js';
 import type { CurrencyState } from './currency/state.js';
 
@@ -54,6 +54,31 @@ export type CurrencySelection = Partial<CurrencyApi>;
 
 export type CurrencyInstance<M extends CurrencySelection> = {
   [K in keyof M]-?: M[K] extends (state: CurrencyState, ...args: infer A) => infer R ? (...args: A) => R : never;
+};
+
+// ---------------------------------------------------------------------------
+// calendar (scoped as proof: gregorian only, offset companion)
+
+export interface CalendarState {
+  pack: DecodedLocalePack;
+  zones: DecodedZonesTable;
+  date: Date;
+}
+
+export interface CalendarApi {
+  /** Format the date with the locale's date pattern (day-period 'a' included). */
+  format?: (state: CalendarState, style?: 'full' | 'long' | 'medium' | 'short') => string;
+  monthName?: (state: CalendarState, style?: 'wide' | 'abbreviated') => string;
+  weekdayName?: (state: CalendarState, style?: 'wide' | 'abbreviated' | 'narrow') => string;
+  firstDay?: (state: CalendarState) => number;
+  /** Format a zone's UTC offset at the state's date (hourFormat; gmtFormat fallback). */
+  offset?: (state: CalendarState, zone: string) => string;
+}
+
+export type CalendarSelection = Partial<CalendarApi>;
+
+export type CalendarInstance<M extends CalendarSelection> = {
+  [K in keyof M]-?: M[K] extends (state: CalendarState, ...args: infer A) => infer R ? (...args: A) => R : never;
 };
 
 // ---------------------------------------------------------------------------

@@ -5,6 +5,7 @@
  * the numeric codec chain.
  */
 import { compileDataset, decodeLocalePack, decodeNumericPack, lookupTrieValue, miniCldr, toU16 } from '../src/index.js';
+import { TEST_CALENDAR } from './fixtures.js';
 import type { Dataset } from '../src/index.js';
 
 const original = (tag: string) => miniCldr.locales[tag];
@@ -66,12 +67,14 @@ describe('pack round-trip', () => {
   it('pool strings: exactly the deduped, sorted source strings', () => {
     for (const [tag, pack] of Object.entries(compiled.locale)) {
       const d = decodeLocalePack(pack);
+      const c = original(tag).calendar;
       const expected = [
         ...new Set([
           ...Object.values(original(tag).territories),
           ...Object.values(original(tag).languages),
           ...Object.values(original(tag).scripts),
-          ...Object.values(original(tag).currencies).map((c) => c.symbol),
+          ...Object.values(original(tag).currencies).map((cc) => cc.symbol),
+          ...c.monthsWide, ...c.monthsAbbr, ...c.daysWide, ...c.daysAbbr, ...c.daysNarrow, ...c.erasWide, ...c.erasAbbr, c.dayPeriodsAm, c.dayPeriodsPm,
         ]),
       ].sort();
       expect(d.pool).toEqual(expected);
@@ -122,11 +125,15 @@ describe('numeric u16 domain (v0.1: pools are arrays, numbers are u16)', () => {
           patterns: { decimal: '#', percent: '%', currency: '¤' },
           symbols: { decimal: '.', group: ',', minus: '-', percent: '%' },
           plural: { cardinal: { one: 'n = 1', other: '' }, ordinal: {} },
+          calendar: TEST_CALENDAR,
         },
       },
       numeric: { keys: [], values: [] },
     } satisfies Dataset);
-    expect(decodeLocalePack(compiled.locale.en).pool).toEqual([many[39999]]);
+    const pool = decodeLocalePack(compiled.locale.en).pool;
+    expect(pool).toContain(many[39999]); // far beyond any u16 domain
+    expect(pool).toContain('January'); // calendar names ride the same pool
+    expect([...pool]).toEqual([...pool].sort());
   });
 
   it('empty key sets compile to empty pack streams (no undefined values)', () => {
@@ -140,6 +147,7 @@ describe('numeric u16 domain (v0.1: pools are arrays, numbers are u16)', () => {
           patterns: { decimal: '#', percent: '%', currency: '¤' },
           symbols: { decimal: '.', group: ',', minus: '-', percent: '%' },
           plural: { cardinal: { one: 'n = 1', other: '' }, ordinal: {} },
+          calendar: TEST_CALENDAR,
         },
       },
       numeric: { keys: [], values: [] },

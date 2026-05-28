@@ -31,7 +31,31 @@ export interface DecodedLocalePack {
   symbols: string[];
   /** Decoded plural rulesets. */
   plural: { cardinal: PluralRuleSet; ordinal: PluralRuleSet };
+  /** Decoded gregorian slice — names RESOLVED to strings (fixed positions). */
+  calendar: {
+    firstDay: number;
+    minDays: number;
+    weekendStart: number;
+    weekendEnd: number;
+    names: {
+      monthsWide: string[];
+      monthsAbbr: string[];
+      daysWide: string[];
+      daysAbbr: string[];
+      daysNarrow: string[];
+      erasWide: string[];
+      erasAbbr: string[];
+      am: string;
+      pm: string;
+    };
+    dateFormats: string[];
+    timeFormats: string[];
+    hourFormat: string;
+    gmtFormat: string;
+  };
 }
+
+const resolveNames = (pool: string[], indices: number[]): string[] => indices.map((i) => pool[i]);
 
 export const decodeLocalePack = (pack: LocalePack): DecodedLocalePack => ({
   pool: pack.pool,
@@ -43,12 +67,54 @@ export const decodeLocalePack = (pack: LocalePack): DecodedLocalePack => ({
   patterns: pack.patterns,
   symbols: pack.symbols,
   plural: { cardinal: decodePluralRules(pack.plural.cardinal), ordinal: decodePluralRules(pack.plural.ordinal) },
+  calendar: decodeCalendar(pack),
+});
+
+/** Decode the gregorian slice; names RESOLVED to strings (fixed positions). */
+const decodeCalendar = (pack: LocalePack): DecodedLocalePack['calendar'] => ({
+  firstDay: pack.calendar.firstDay,
+  minDays: pack.calendar.minDays,
+  weekendStart: pack.calendar.weekendStart,
+  weekendEnd: pack.calendar.weekendEnd,
+  names: {
+    monthsWide: resolveNames(pack.pool, pack.calendar.names.monthsWide),
+    monthsAbbr: resolveNames(pack.pool, pack.calendar.names.monthsAbbr),
+    daysWide: resolveNames(pack.pool, pack.calendar.names.daysWide),
+    daysAbbr: resolveNames(pack.pool, pack.calendar.names.daysAbbr),
+    daysNarrow: resolveNames(pack.pool, pack.calendar.names.daysNarrow),
+    erasWide: resolveNames(pack.pool, pack.calendar.names.erasWide),
+    erasAbbr: resolveNames(pack.pool, pack.calendar.names.erasAbbr),
+    am: pack.pool[pack.calendar.names.am],
+    pm: pack.pool[pack.calendar.names.pm],
+  },
+  dateFormats: pack.calendar.dateFormats,
+  timeFormats: pack.calendar.timeFormats,
+  hourFormat: pack.calendar.hourFormat,
+  gmtFormat: pack.calendar.gmtFormat,
 });
 
 export interface DecodedNumericPack {
   keys: string[];
   values: number[];
 }
+
+export interface DecodedZonesTable {
+  keys: string[];
+  /** Seconds per unit. */
+  unit: number;
+  /** Additive bias. */
+  bias: number;
+  /** Offset in SECONDS per key (already unit*bias-expanded). */
+  offsets: number[];
+}
+
+/** The deferred unit+offset numeric header (design doc §2.4): decode + expand. */
+export const decodeZonesTable = (zones: import('./types.js').ZonesTable): DecodedZonesTable => ({
+  keys: zones.keys,
+  unit: zones.unit,
+  bias: zones.bias,
+  offsets: Array.from(decodeX85GVE16(zones.values)).map((v) => (v - zones.bias) * zones.unit),
+});
 
 export const decodeNumericPack = (pack: NumericPack): DecodedNumericPack => ({
   keys: pack.keys,
@@ -116,5 +182,9 @@ export const mergeVariantDelta = (base: DecodedLocalePack, delta: VariantDelta):
       cardinal: delta.plural?.cardinal !== undefined ? decodePluralRules(delta.plural.cardinal) : base.plural.cardinal,
       ordinal: delta.plural?.ordinal !== undefined ? decodePluralRules(delta.plural.ordinal) : base.plural.ordinal,
     },
+    // calendar: full-override semantics — the delta carries a complete
+    // calendar block when anything differs (family deltas are rare here:
+    // only en-GB's dateFormats differ in the 11-locale set)
+    ...(delta.calendar !== undefined ? { calendar: decodeCalendar({ ...({ pool: pool } as LocalePack), calendar: delta.calendar } as LocalePack) } : { calendar: base.calendar }),
   };
 };

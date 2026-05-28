@@ -64,6 +64,34 @@ export interface LocalePack {
     cardinal: number[];
     ordinal: number[];
   };
+  /**
+   * Gregorian calendar slice (calendars-scoped-as-proof). Names are
+   * FIXED-POSITION pool-index vectors (months 0..11 = Jan..Dec, days
+   * 0..6 = sun..sat) — plain number[] literals, no tries (positions are
+   * the schema; self-describing by construction).
+   */
+  calendar: {
+    firstDay: number;
+    minDays: number;
+    weekendStart: number;
+    weekendEnd: number;
+    names: {
+      monthsWide: number[];
+      monthsAbbr: number[];
+      daysWide: number[];
+      daysAbbr: number[];
+      daysNarrow: number[];
+      erasWide: number[];
+      erasAbbr: number[];
+      am: number;
+      pm: number;
+    };
+    /** Fixed order: [full, long, medium, short]. */
+    dateFormats: string[];
+    timeFormats: string[];
+    hourFormat: string;
+    gmtFormat: string;
+  };
 }
 
 /** Locale-independent pack (the shared numeric table). */
@@ -72,6 +100,13 @@ export interface NumericPack {
   keys: string[];
   /** X85(GVE16(u16[])) — parallel to keys. */
   values: string;
+  /**
+   * Zone-offset table (the deferred unit+offset numeric header, design
+   * doc §2.4): offsets in seconds at a fixed instant, unit-scaled
+   * (900s, e.g. 50 = 45000s) with a bias — the measured rule. Platform
+   * tzdb provenance (compiled at generate time); committed + frozen.
+   */
+  zones?: ZonesTable;
 }
 
 /**
@@ -81,6 +116,19 @@ export interface NumericPack {
  */
 export const PLURAL_CATEGORIES = ['zero', 'one', 'two', 'few', 'many', 'other'] as const;
 export type PluralCategory = (typeof PLURAL_CATEGORIES)[number];
+
+/**
+ * The zone-offset companion (deferred unit+offset numeric header).
+ */
+export interface ZonesTable {
+  keys: string[];
+  /** Seconds per value unit (900 = quarter-hour). */
+  unit: number;
+  /** Additive bias applied to each stored value. */
+  bias: number;
+  /** X85(GVE16(u16[])) — (offsetSeconds / unit + bias) per key. */
+  values: string;
+}
 
 /**
  * Family-variant delta (wire v1, generator layout selection — design
@@ -110,4 +158,6 @@ export interface VariantDelta {
     cardinal?: number[];
     ordinal?: number[];
   };
+  /** Optional full calendar override (when any calendar field differs). */
+  calendar?: LocalePack['calendar'];
 }

@@ -48,6 +48,26 @@
       "types": "./dist/currency/fraction-digits.d.ts",
       "default": "./dist/currency/fraction-digits.js"
     },
+    "./calendar/format": {
+      "types": "./dist/calendar/format.d.ts",
+      "default": "./dist/calendar/format.js"
+    },
+    "./calendar/month-name": {
+      "types": "./dist/calendar/month-name.d.ts",
+      "default": "./dist/calendar/month-name.js"
+    },
+    "./calendar/weekday-name": {
+      "types": "./dist/calendar/weekday-name.d.ts",
+      "default": "./dist/calendar/weekday-name.js"
+    },
+    "./calendar/first-day": {
+      "types": "./dist/calendar/first-day.d.ts",
+      "default": "./dist/calendar/first-day.js"
+    },
+    "./calendar/offset": {
+      "types": "./dist/calendar/offset.d.ts",
+      "default": "./dist/calendar/offset.js"
+    },
     "./plural/select": {
       "types": "./dist/plural/select.d.ts",
       "default": "./dist/plural/select.js"

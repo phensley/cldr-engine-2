@@ -104,6 +104,30 @@ export const buildVariantDelta = (base: LocaleData, variant: LocaleData, basePoo
   const symbols = JSON.stringify(base.symbols) !== JSON.stringify(variant.symbols) ? [variant.symbols.decimal, variant.symbols.group, variant.symbols.minus, variant.symbols.percent] : undefined;
   // plural rules are language-level: en-GB inherits en, so family deltas
   // normally carry no override — the field exists for correctness anyway
+  const calendar =
+    JSON.stringify(base.calendar) !== JSON.stringify(variant.calendar)
+      ? {
+          firstDay: variant.calendar.firstDay,
+          minDays: variant.calendar.minDays,
+          weekendStart: variant.calendar.weekendStart,
+          weekendEnd: variant.calendar.weekendEnd,
+          names: {
+            monthsWide: variant.calendar.monthsWide.map((s) => idxOf(s)),
+            monthsAbbr: variant.calendar.monthsAbbr.map((s) => idxOf(s)),
+            daysWide: variant.calendar.daysWide.map((s) => idxOf(s)),
+            daysAbbr: variant.calendar.daysAbbr.map((s) => idxOf(s)),
+            daysNarrow: variant.calendar.daysNarrow.map((s) => idxOf(s)),
+            erasWide: variant.calendar.erasWide.map((s) => idxOf(s)),
+            erasAbbr: variant.calendar.erasAbbr.map((s) => idxOf(s)),
+            am: idxOf(variant.calendar.dayPeriodsAm),
+            pm: idxOf(variant.calendar.dayPeriodsPm),
+          },
+          dateFormats: [variant.calendar.dateFormats.full, variant.calendar.dateFormats.long, variant.calendar.dateFormats.medium, variant.calendar.dateFormats.short],
+          timeFormats: [variant.calendar.timeFormats.full, variant.calendar.timeFormats.long, variant.calendar.timeFormats.medium, variant.calendar.timeFormats.short],
+          hourFormat: variant.calendar.hourFormat,
+          gmtFormat: variant.calendar.gmtFormat,
+        }
+      : undefined;
   const plural =
     JSON.stringify(base.plural) !== JSON.stringify(variant.plural)
       ? { cardinal: Object.keys(variant.plural.cardinal).length > 0 ? encodePluralRules(variant.plural.cardinal) : [], ordinal: Object.keys(variant.plural.ordinal).length > 0 ? encodePluralRules(variant.plural.ordinal) : [] }
@@ -121,6 +145,7 @@ export const buildVariantDelta = (base: LocaleData, variant: LocaleData, basePoo
     patterns,
     symbols,
     plural,
+    calendar,
     ...(poolAdd.length > 0 ? { poolAdd } : {}),
   };
 };

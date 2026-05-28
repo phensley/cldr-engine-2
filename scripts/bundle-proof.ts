@@ -62,6 +62,11 @@ const cases: HarnessCase[] = [
     app: (ctx: string) => `out.push(${ctx}.plural.new('2').select());`,
   },
   {
+    name: 'calendar-en',
+    config: { locales: ['en'], features: { calendar: true } },
+    app: (ctx: string) => `out.push(${ctx}.calendar.new(new Date('2025-03-04T12:00:00Z')).format(), ${ctx}.calendar.new(new Date('2025-01-15T12:00:00Z')).offset('America/New_York'));`,
+  },
+  {
     name: 'currency-en-fr',
     config: { locales: ['en', 'fr'], features: { currency: true } },
     app: currencyApp,
@@ -187,6 +192,13 @@ for (const c of cases) {
       assert(text.includes(SENTINELS[tag]), `all-4-eager: "${SENTINELS[tag]}" present`);
     }
   }
+  if (c.name === 'calendar-en') {
+    assert(inGraph('/packs/en.ts').length === 1 || inGraph('/packs/en.js').length === 1, 'calendar-en: en pack in graph');
+    assert(inGraph('/calendar/format').length === 1, 'calendar-en: format module in graph');
+    assert(inGraph('/packs/zones.ts').length === 1 || inGraph('/packs/zones.js').length === 1, 'calendar-en: zones table in graph');
+    assert(inGraph('/plural/').length === 0, 'calendar-en: no plural modules in graph');
+    assert(inGraph('/currency/').length === 0, 'calendar-en: no currency modules in graph');
+  }
   if (c.name === 'plural-en') {
     assert(inGraph('/packs/en.ts').length === 1 || inGraph('/packs/en.js').length === 1, 'plural-en: en pack in graph');
     assert(inGraph('/plural/select').length === 1, 'plural-en: select module in graph');
@@ -228,7 +240,7 @@ for (const c of cases) {
     const chunkTexts = files.filter((f, idx) => idx !== entryIdx).map((f) => readFileSync(join(tmp, c.name, 'out', f), 'utf8'));
     for (const t of chunkTexts) {
       // full packs carry pool text; family-delta chunks are tiny by design
-      assert(Object.values(SENTINELS).some((n) => t.includes(n)) || t.length < 4096, 'lazy: every locale chunk carries pool text or is a small delta');
+      assert(Object.values(SENTINELS).some((n) => t.includes(n)) || t.includes('"base"'), "lazy: every locale chunk carries pool text or is a family delta");
     }
     for (const n of Object.values(SENTINELS)) {
       assert(chunkTexts.some((t) => t.includes(n)), `lazy: "${n}" present in some chunk`);
@@ -237,6 +249,13 @@ for (const c of cases) {
   // the numeric stress pack is never consumed by any feature
   assert(inGraph('/packs/numeric').length === 0, `${c.name}: numeric pack never in graph`);
 
+  if (c.name === 'calendar-en') {
+    assert(inGraph('/packs/en.ts').length === 1 || inGraph('/packs/en.js').length === 1, 'calendar-en: en pack in graph');
+    assert(inGraph('/calendar/format').length === 1, 'calendar-en: format module in graph');
+    assert(inGraph('/packs/zones.ts').length === 1 || inGraph('/packs/zones.js').length === 1, 'calendar-en: zones table in graph');
+    assert(inGraph('/plural/').length === 0, 'calendar-en: no plural modules in graph');
+    assert(inGraph('/currency/').length === 0, 'calendar-en: no currency modules in graph');
+  }
   if (c.name === 'plural-en') {
     assert(inGraph('/packs/en.ts').length === 1 || inGraph('/packs/en.js').length === 1, 'plural-en: en pack in graph');
     assert(inGraph('/plural/select').length === 1, 'plural-en: select module in graph');

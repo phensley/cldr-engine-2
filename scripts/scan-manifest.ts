@@ -65,6 +65,7 @@ const FEATURE_META: Record<string, { data: string[]; needsLocaleData: boolean }>
   decimal: { data: [], needsLocaleData: false },
   currency: { data: ['currencies', 'patterns', 'pool'], needsLocaleData: true },
   plural: { data: ['plural'], needsLocaleData: true },
+  calendar: { data: ['calendar'], needsLocaleData: true },
 };
 
 // ---------------------------------------------------------------------------
@@ -77,6 +78,15 @@ const exportedNames = (file: string): Set<string> => {
   const sf = parse(file);
   const names = new Set<string>();
   for (const stmt of sf.statements) {
+    if (ts.isExportDeclaration(stmt)) {
+      // re-exports are exports by grammar — no ExportKeyword modifier
+      if (stmt.exportClause !== undefined && ts.isNamedExports(stmt.exportClause)) {
+        for (const e of stmt.exportClause.elements) {
+          names.add(e.name.text);
+        }
+      }
+      continue;
+    }
     const mods = ts.canHaveModifiers(stmt) ? ts.getModifiers(stmt) : undefined;
     if (!mods?.some((m) => m.kind === ts.SyntaxKind.ExportKeyword)) {
       continue;
@@ -91,10 +101,6 @@ const exportedNames = (file: string): Set<string> => {
       names.add(stmt.name.text);
     } else if (ts.isClassDeclaration(stmt) && stmt.name) {
       names.add(stmt.name.text);
-    } else if (ts.isExportDeclaration(stmt) && stmt.exportClause && ts.isNamedExports(stmt.exportClause)) {
-      for (const e of stmt.exportClause.elements) {
-        names.add(e.name.text);
-      }
     }
   }
   return names;
@@ -251,7 +257,7 @@ export const deriveManifest = (): DerivedManifest => {
   }
 
   const locales = readdirSync(PACKS_DIR)
-    .filter((f) => f.endsWith('.ts') && f !== 'numeric.ts' && f !== 'layout.ts')
+    .filter((f) => f.endsWith('.ts') && f !== 'numeric.ts' && f !== 'layout.ts' && f !== 'zones.ts')
     .map((f) => tagFromStem(f.replace(/\.ts$/, '')))
     .sort();
 
@@ -342,7 +348,7 @@ export interface FeatureManifest {
   /** True when the feature needs the locale's decoded pack. */
   needsLocaleData: boolean;
   /** Runtime factory the generated client assembles this feature with. */
-  factory: 'makeDecimalFactory' | 'makeCurrencyFactory' | 'makePluralFactory';
+  factory: 'makeDecimalFactory' | 'makeCurrencyFactory' | 'makePluralFactory' | 'makeCalendarFactory';
 }
 
 export interface Manifest {

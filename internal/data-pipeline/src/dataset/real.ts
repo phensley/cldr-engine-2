@@ -34,7 +34,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { miniCldr } from './index.js';
-import type { CurrencyEntry, Dataset, LocaleData, NumberPatterns, NumberSymbols, PluralCategory, PluralRulesData } from './types.js';
+import type { CalendarData, CurrencyEntry, Dataset, LocaleData, NumberPatterns, NumberSymbols, PluralCategory, PluralRulesData } from './types.js';
 
 export const CLDR_VERSION = '48.2.1';
 
@@ -113,7 +113,70 @@ const buildLocale = (
   }
 
   const plural = resolvePluralRules(locale);
-  return { territories, languages, scripts, currencies, patterns, symbols, plural };
+  const calendar = buildCalendar(locale);
+  return { territories, languages, scripts, currencies, patterns, symbols, plural, calendar };
+};
+
+/** Weekday code → 0..6 (sun..sat), CLDR weekData uses 'sun'..'sat' keys. */
+const DAY_CODE: Record<string, number> = { sun: 0, mon: 1, tue: 2, wed: 3, thu: 4, fri: 5, sat: 6 };
+
+/**
+ * Gregorian slice (calendars-scoped-as-proof): per-locale names/patterns
+ * from ca-gregorian.json + hourFormat/gmtFormat from timeZoneNames.json
+ * + territory-derived week rules from weekData.json (region from the
+ * tag; '001' fallback). CLDR 48 kept firstDay/weekend in weekData, not
+ * calendarData.
+ */
+const buildCalendar = (locale: string): CalendarData => {
+  const greg = (readJson(`cldr-dates-full/main/${locale}/ca-gregorian.json`) as any).main[locale].dates.calendars.gregorian;
+  const tz = (readJson(`cldr-dates-full/main/${locale}/timeZoneNames.json`) as any).main[locale].dates.timeZoneNames;
+  const week = (readJson('cldr-core/supplemental/weekData.json') as any).supplemental.weekData;
+
+  const region = /^([a-z]{2,3})-([A-Z]{2}|[0-9]{3})$/i.exec(locale)?.[2] ?? '001';
+  const firstDay = DAY_CODE[week.firstDay[region] ?? week.firstDay['001']] ?? 1;
+  const weekendStart = DAY_CODE[week.weekendStart[region] ?? week.weekendStart['001']] ?? 6;
+  const weekendEnd = DAY_CODE[week.weekendEnd[region] ?? week.weekendEnd['001']] ?? 0;
+
+  const names = (obj: Record<string, string>, from: number, to: number): string[] => {
+    const out: string[] = [];
+    for (let i = from; i <= to; i++) {
+      const v = obj[String(i)];
+      if (v === undefined) {
+        throw new Error(`real adapter: ${locale} calendar missing position ${i}`);
+      }
+      out.push(v);
+    }
+    return out;
+  };
+  const dayNames = (obj: Record<string, string>): string[] =>
+    ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'].map((k) => {
+      const v = obj[k];
+      if (v === undefined) {
+        throw new Error(`real adapter: ${locale} calendar missing day '${k}'`);
+      }
+      return v;
+    });
+  const eras = (obj: Record<string, string>): string[] => [obj['0'], obj['1']];
+
+  return {
+    firstDay,
+    minDays: Number(week.minDays[region] ?? week.minDays['001'] ?? 1),
+    weekendStart,
+    weekendEnd,
+    monthsWide: names(greg.months.format.wide, 1, 12),
+    monthsAbbr: names(greg.months.format.abbreviated, 1, 12),
+    daysWide: dayNames(greg.days.format.wide),
+    daysAbbr: dayNames(greg.days.format.abbreviated),
+    daysNarrow: dayNames(greg.days.format.narrow),
+    erasWide: eras(greg.eras.eraNames),
+    erasAbbr: eras(greg.eras.eraAbbr),
+    dayPeriodsAm: greg.dayPeriods.format.wide.am,
+    dayPeriodsPm: greg.dayPeriods.format.wide.pm,
+    dateFormats: { full: greg.dateFormats.full, long: greg.dateFormats.long, medium: greg.dateFormats.medium, short: greg.dateFormats.short },
+    timeFormats: { full: greg.timeFormats.full, long: greg.timeFormats.long, medium: greg.timeFormats.medium, short: greg.timeFormats.short },
+    hourFormat: tz.hourFormat,
+    gmtFormat: tz.gmtFormat,
+  };
 };
 
 /**

@@ -38,12 +38,14 @@ const compileTrie = (entries: Array<readonly [string, string]>, index: Map<strin
 
 export const compileLocale = (data: LocaleData): LocalePack => {
   // Shared pool: display names + currency symbols, sorted + deduped.
+  const c = data.calendar;
   const pool = [
     ...new Set([
       ...Object.values(data.territories),
       ...Object.values(data.languages),
       ...Object.values(data.scripts),
-      ...Object.values(data.currencies).map((c) => c.symbol),
+      ...Object.values(data.currencies).map((cur) => cur.symbol),
+      ...c.monthsWide, ...c.monthsAbbr, ...c.daysWide, ...c.daysAbbr, ...c.daysNarrow, ...c.erasWide, ...c.erasAbbr, c.dayPeriodsAm, c.dayPeriodsPm,
     ]),
   ].sort();
   const index = new Map(pool.map((s, i) => [s, i]));
@@ -73,6 +75,27 @@ export const compileLocale = (data: LocaleData): LocalePack => {
     plural: {
       cardinal: encodePluralRules(data.plural.cardinal),
       ordinal: encodePluralRules(data.plural.ordinal),
+    },
+    calendar: {
+      firstDay: data.calendar.firstDay,
+      minDays: data.calendar.minDays,
+      weekendStart: data.calendar.weekendStart,
+      weekendEnd: data.calendar.weekendEnd,
+      names: {
+        monthsWide: data.calendar.monthsWide.map((s) => index.get(s)!),
+        monthsAbbr: data.calendar.monthsAbbr.map((s) => index.get(s)!),
+        daysWide: data.calendar.daysWide.map((s) => index.get(s)!),
+        daysAbbr: data.calendar.daysAbbr.map((s) => index.get(s)!),
+        daysNarrow: data.calendar.daysNarrow.map((s) => index.get(s)!),
+        erasWide: data.calendar.erasWide.map((s) => index.get(s)!),
+        erasAbbr: data.calendar.erasAbbr.map((s) => index.get(s)!),
+        am: index.get(data.calendar.dayPeriodsAm)!,
+        pm: index.get(data.calendar.dayPeriodsPm)!,
+      },
+      dateFormats: [data.calendar.dateFormats.full, data.calendar.dateFormats.long, data.calendar.dateFormats.medium, data.calendar.dateFormats.short],
+      timeFormats: [data.calendar.timeFormats.full, data.calendar.timeFormats.long, data.calendar.timeFormats.medium, data.calendar.timeFormats.short],
+      hourFormat: data.calendar.hourFormat,
+      gmtFormat: data.calendar.gmtFormat,
     },
   };
 };

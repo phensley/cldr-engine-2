@@ -12,8 +12,8 @@
  * sub-namespace).
  */
 import type { DecimalInstance, DecimalSelection } from './api.js';
-import type { CurrencyInstance, CurrencySelection, PluralInstance, PluralSelection, PluralState } from './api.js';
-import type { DecodedLocalePack } from '@cldr/internal-core';
+import type { CalendarInstance, CalendarSelection, CalendarState, CurrencyInstance, CurrencySelection, PluralInstance, PluralSelection, PluralState } from './api.js';
+import type { DecodedLocalePack, DecodedZonesTable } from '@cldr/internal-core';
 import { parseDecimal } from './decimal/state.js';
 import type { DecimalArg, DecimalState } from './decimal/state.js';
 import type { CurrencyState } from './currency/state.js';
@@ -120,6 +120,36 @@ export const makePluralFactory = <M extends PluralSelection>(pack: DecodedLocale
         writable: true,
       });
       return inst as unknown as PluralInstance<M>;
+    },
+  };
+};
+
+/**
+ * makeCalendarFactory — assembles a Calendar factory per locale from the
+ * selected method functions. Instances hold { pack, zones, date }: the
+ * zones table is the shared offset companion (unit+offset numeric
+ * header), captured at assembly from the generated client.
+ */
+export const makeCalendarFactory = <M extends CalendarSelection>(pack: DecodedLocalePack, zones: DecodedZonesTable, selected: M) => {
+  const top: Record<string, unknown> = {};
+  for (const [key, fn] of Object.entries(selected)) {
+    if (typeof fn === 'function') {
+      top[key] = function (this: { __s: CalendarState }, ...args: unknown[]) {
+        return (fn as AnyFn)(this.__s, ...args);
+      };
+    }
+  }
+  Object.freeze(top);
+
+  return {
+    new: (date: Date): CalendarInstance<M> => {
+      const inst = Object.create(top) as Record<string, unknown> & { __s: CalendarState };
+      Object.defineProperty(inst, '__s', {
+        value: { pack, zones, date } satisfies CalendarState,
+        enumerable: false,
+        writable: true,
+      });
+      return inst as unknown as CalendarInstance<M>;
     },
   };
 };

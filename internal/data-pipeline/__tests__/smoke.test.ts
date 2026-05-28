@@ -7,6 +7,7 @@
  */
 import { addKey, decodeX85GVE16, encodeGVE16, encodeTrie, encodeX85, newTrie, searchTrie } from '@cldr/internal-core';
 import type { Dataset } from '../src/index.js';
+import { TEST_CALENDAR } from './fixtures.js';
 
 describe('workspace wiring', () => {
   test('core codecs round-trip through the package exports map', () => {
@@ -37,6 +38,7 @@ describe('workspace wiring', () => {
           patterns: { decimal: '#,##0.###', percent: '#,##0%', currency: '¤#,##0.00' },
           symbols: { decimal: '.', group: ',', minus: '-', percent: '%' },
           plural: { cardinal: {}, ordinal: {} },
+          calendar: TEST_CALENDAR,
         },
       },
       numeric: { keys: ['UTC+0'], values: [0, 65535] },

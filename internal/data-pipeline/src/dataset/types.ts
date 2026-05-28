@@ -78,6 +78,8 @@ export interface LocaleData {
    * present per locale; a locale absent from CLDR's tables ships {}.
    */
   plural: PluralRulesData;
+  /** Gregorian calendar data (scoped as proof: gregorian only). */
+  calendar: CalendarData;
 }
 
 /**
@@ -92,6 +94,27 @@ export { PLURAL_CATEGORIES };
 export interface PluralRulesData {
   cardinal: Partial<Record<PluralCategory, string>>;
   ordinal: Partial<Record<PluralCategory, string>>;
+}
+
+/** Gregorian calendar slice (calendars-scoped-as-proof). Fixed positions: months 0..11 (Jan..Dec), days 0..6 (sun..sat). */
+export interface CalendarData {
+  firstDay: number;
+  minDays: number;
+  weekendStart: number;
+  weekendEnd: number;
+  monthsWide: string[];
+  monthsAbbr: string[];
+  daysWide: string[];
+  daysAbbr: string[];
+  daysNarrow: string[];
+  erasWide: string[];
+  erasAbbr: string[];
+  dayPeriodsAm: string;
+  dayPeriodsPm: string;
+  dateFormats: { full: string; long: string; medium: string; short: string };
+  timeFormats: { full: string; long: string; medium: string; short: string };
+  hourFormat: string;
+  gmtFormat: string;
 }
 
 /** The whole dataset: per-locale data + one shared numeric table. */
