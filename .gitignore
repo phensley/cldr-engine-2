@@ -10,3 +10,4 @@ packages/cldr/src/_core/
 
 # fetch-cldr-data.ts cache (CLDR 48.2.x json)
 .cache/
+internal/data-pipeline/generated-full/

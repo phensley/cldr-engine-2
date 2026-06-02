@@ -30,7 +30,7 @@
  *
  * Deterministic: key order follows the pinned JSON files.
  */
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { miniCldr } from './index.js';
@@ -38,8 +38,27 @@ import type { CalendarData, CurrencyEntry, Dataset, LocaleData, NumberPatterns, 
 
 export const CLDR_VERSION = '48.2.1';
 
-/** The decided v1 locale set (plans/real-cldr-compiler.md §2.1). */
+/** The committed regression set (packs are committed for these; full coverage regenerates at publish). */
 export const LOCALES = ['en', 'en-001', 'en-GB', 'en-AU', 'en-CA', 'fr', 'de', 'zh', 'ar', 'hi', 'ru'] as const;
+
+/**
+ * BCP-47 subtag extraction for the SUPPLEMENTAL lookups (weekData is
+ * territory-keyed; plurals exact-then-language). Scripts are 4-alpha,
+ * regions 2-alpha or 3-digit; all other subtags are ignored.
+ */
+export const parseBcp47 = (tag: string): { lang: string; script?: string; region?: string } => {
+  const parts = tag.split('-');
+  let script: string | undefined;
+  let region: string | undefined;
+  for (const p of parts.slice(1)) {
+    if (/^[A-Za-z]{4}$/.test(p) && script === undefined) {
+      script = p;
+    } else if ((/^[A-Za-z]{2}$/.test(p) || /^[0-9]{3}$/.test(p)) && region === undefined) {
+      region = p;
+    }
+  }
+  return { lang: parts[0], script, region };
+};
 
 const CACHE = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '..', '.cache', 'cldr', CLDR_VERSION);
 
@@ -132,7 +151,8 @@ const buildCalendar = (locale: string): CalendarData => {
   const tz = (readJson(`cldr-dates-full/main/${locale}/timeZoneNames.json`) as any).main[locale].dates.timeZoneNames;
   const week = (readJson('cldr-core/supplemental/weekData.json') as any).supplemental.weekData;
 
-  const region = /^([a-z]{2,3})-([A-Z]{2}|[0-9]{3})$/i.exec(locale)?.[2] ?? '001';
+  // region from the tag (proper BCP-47 — 'zh-Hant-TW' resolves TW, not 'Hant')
+  const region = parseBcp47(locale).region ?? '001';
   const firstDay = DAY_CODE[week.firstDay[region] ?? week.firstDay['001']] ?? 1;
   const weekendStart = DAY_CODE[week.weekendStart[region] ?? week.weekendStart['001']] ?? 6;
   const weekendEnd = DAY_CODE[week.weekendEnd[region] ?? week.weekendEnd['001']] ?? 0;
@@ -157,6 +177,9 @@ const buildCalendar = (locale: string): CalendarData => {
       return v;
     });
   const eras = (obj: Record<string, string>): string[] => [obj['0'], obj['1']];
+  // CLDR 48: format entries may carry { _value, _numbers } (alternative
+  // numbering annotations, e.g. roman-numeral months) — take the pattern
+  const pattern = (v: unknown): string => (typeof v === 'string' ? v : (v as { _value?: string } | undefined)?._value ?? '');
 
   return {
     firstDay,
@@ -172,8 +195,8 @@ const buildCalendar = (locale: string): CalendarData => {
     erasAbbr: eras(greg.eras.eraAbbr),
     dayPeriodsAm: greg.dayPeriods.format.wide.am,
     dayPeriodsPm: greg.dayPeriods.format.wide.pm,
-    dateFormats: { full: greg.dateFormats.full, long: greg.dateFormats.long, medium: greg.dateFormats.medium, short: greg.dateFormats.short },
-    timeFormats: { full: greg.timeFormats.full, long: greg.timeFormats.long, medium: greg.timeFormats.medium, short: greg.timeFormats.short },
+    dateFormats: { full: pattern(greg.dateFormats.full), long: pattern(greg.dateFormats.long), medium: pattern(greg.dateFormats.medium), short: pattern(greg.dateFormats.short) },
+    timeFormats: { full: pattern(greg.timeFormats.full), long: pattern(greg.timeFormats.long), medium: pattern(greg.timeFormats.medium), short: pattern(greg.timeFormats.short) },
     hourFormat: tz.hourFormat,
     gmtFormat: tz.gmtFormat,
   };
@@ -211,15 +234,24 @@ const resolvePluralRules = (locale: string): PluralRulesData => {
 };
 
 /**
- * The real pipeline dataset (lazy-loaded on first call — reads the
- * cache ~57 JSON files). `numeric` is the shared fixture table until a
- * real standalone numeric stream exists (v1 decision).
+ * The real pipeline dataset (lazy-loaded; cache reads only).
+ * `full` = the entire cached locale universe (~766; some classes absent
+ * for low-coverage locales — those encode as empty name sets). Default =
+ * the committed regression set (LOCALES).
+ * `numeric` is the shared fixture table until a real standalone numeric
+ * stream exists (v1 decision).
  */
-let cached: Dataset | undefined;
+const cached11: { d: Dataset | undefined } = { d: undefined };
+const cachedAll: { d: Dataset | undefined } = { d: undefined };
 
-export const realCldr = (): Dataset => {
-  if (cached !== undefined) {
-    return cached;
+export interface RealOptions {
+  full?: boolean;
+}
+
+export const realCldr = (opts: RealOptions = {}): Dataset => {
+  const box = opts.full ? cachedAll : cached11;
+  if (box.d !== undefined) {
+    return box.d;
   }
   requireCache();
 
@@ -228,14 +260,22 @@ export const realCldr = (): Dataset => {
     { _digits?: string }
   >;
 
+  const tags = opts.full ? cachedLocales() : [...LOCALES];
   const locales: Record<string, LocaleData> = {};
-  for (const locale of LOCALES) {
+  for (const locale of tags) {
     const numbers = (readJson(`cldr-numbers-full/main/${locale}/numbers.json`) as any).main[locale].numbers as CldrNumbers;
     const currencyEntries = (readJson(`cldr-numbers-full/main/${locale}/currencies.json`) as any).main[locale].numbers.currencies as Record<
       string,
       CldrCurrencyEntry
     >;
-    const ldn = (file: string) => (readJson(`cldr-localenames-full/main/${locale}/${file}`) as any).main[locale].localeDisplayNames;
+    const ldn = (file: string) => {
+      try {
+        const main = (readJson(`cldr-localenames-full/main/${locale}/${file}`) as any).main[locale];
+        return main?.localeDisplayNames ?? {};
+      } catch {
+        return {}; // low-coverage locale: class absent
+      }
+    };
     locales[locale] = buildLocale(
       locale,
       numbers,
@@ -247,9 +287,15 @@ export const realCldr = (): Dataset => {
     );
   }
 
-  cached = { locales, numeric: miniCldr.numeric };
-  return cached;
+  box.d = { locales, numeric: miniCldr.numeric };
+  return box.d;
 };
+
+/** Locale codes present in the cache (all fetched locale dirs, root excluded). */
+const cachedLocales = (): string[] =>
+  readdirSync(join(CACHE, 'cldr-numbers-full', 'main'))
+    .filter((d) => d !== 'root')
+    .sort();
 
 /** Counts per locale (diagnostics/benchmarks; cheap — derived from the cached object). */
 export const realCldrStats = (): Record<string, { territories: number; languages: number; scripts: number; currencies: number }> => {
