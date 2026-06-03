@@ -3,10 +3,10 @@
  *
  * Derived from the source of truth: the *Api interfaces in src/api.ts (slot surface),
  * the impl modules (each ref verified to exist), factory.ts, and the packs/
- * directory (locales). The package.json exports map is derived from the same
- * run: the runtime's public surface is exactly its slot refs (no wildcard
- * reachability for internals). Per-feature pack-stream metadata is declared
- * in FEATURE_META in the scanner. Freshness is enforced by
+ * directory or the full universe (locales). The package.json exports map is
+ * derived from the same run: the runtime's public surface is exactly its slot
+ * refs (no wildcard reachability for internals). Per-feature pack-stream
+ * metadata is declared in FEATURE_META in the scanner. Freshness is enforced by
  * packages/cldr/__tests__/manifest.test.ts (same pattern as the pack assets).
  */
 export interface MethodRef {

@@ -97,6 +97,11 @@ try {
 //127.0.0.1:4873/:_authToken=${token}
 `);
 
+  // 2.5 the publish artifact is BUILT FULL (766 packs + full manifest) —
+  // the registry gets the FULL universe
+  const buildFull = run('pnpm', ['build:full'], ROOT);
+  assert(buildFull.status === 0, 'build:full failed in the workspace');
+
   for (const pkg of ['cldr', 'cldr-generate']) {
     console.log(`== publishing @phensley/${pkg} ==`);
     const r = run('npm', ['publish', '--userconfig', publishRc, '--registry', REGISTRY, '--access', 'public', '--loglevel', 'error'], join(ROOT, 'packages', pkg));
@@ -112,7 +117,7 @@ try {
   // single source of truth: the consumer's cldr.config.ts and the
   // workspace parity reference both generate from this
   const CONFIG = defineConfig({
-    locales: ['en', 'de', 'fr'],
+    locales: ['en', 'ja', 'pt'], // ja/pt exist ONLY in the full universe
     features: {
       decimal: { compare: true, min: true, format: { scientific: true } },
       currency: true,
@@ -120,7 +125,7 @@ try {
   });
 
   const APP = `import { cldr } from './cldr.gen.js';
-export const run = (locale: 'en' | 'de' | 'fr') => {
+export const run = (locale: 'en' | 'ja' | 'pt') => {
   const ctx = cldr.get(locale);
   const total = ctx.currency.new('1234.5', 'USD').format();
   const cheapest = ctx.decimal.new('0.99').min(1.5);
@@ -194,7 +199,7 @@ export const run = (locale: 'en' | 'de' | 'fr') => {
   const gen = run(join(CONSUMER, 'node_modules', '.bin', 'cldr-generate'), ['--config', 'cldr.config.ts', '--out', 'src/cldr.gen.ts'], CONSUMER);
   assert(gen.status === 0, 'generator CLI failed in consumer');
   const genFile = join(CONSUMER, 'src/cldr.gen.ts');
-  assert(readFileSync(genFile, 'utf8').includes('@phensley/cldr/packs/de'), 'generated client imports the de pack');
+  assert(readFileSync(genFile, 'utf8').includes('@phensley/cldr/packs/ja'), 'generated client imports the ja pack');
   console.log('client generated (' + readFileSync(genFile, 'utf8').length + ' bytes)');
 
   // 4. types resolve under NodeNext + bundler resolutions (real installed
@@ -224,7 +229,11 @@ export const run = (locale: 'en' | 'de' | 'fr') => {
 
   const bundleMod = await import(new URL(`file://${join(bundleOut, 'app.js')}`));
   const result = (bundleMod as { run(l: string): string }).run('en');
+  const ja = (bundleMod as { run(l: string): string }).run('ja');
   assert(result === '$1,234.50 / 9.9e-1 / -1', `bundle output parity: got "${result}"`);
+  // ja resolves + renders from the FULL-universe pack (USD formatting is
+  // identical across en/ja — JPY narrowing is covered by the goldens)
+  assert(ja === '$1,234.50 / 9.9e-1 / -1', `full-universe locale render: got "${ja}"`);
 
   // workspace-symlink parity reference (same app content, same esbuild)
   const wsOut = join(ROOT, '.bundle-proof', 'parity-ws');
@@ -259,7 +268,9 @@ export const run = (locale: 'en' | 'de' | 'fr') => {
   );
   assert(blocked !== null && /Could not resolve|No matching export/.test(blocked), `browser bundling must not resolve ./manifest: got ${String(blocked).slice(0, 120)}`);
   const man = await import(new URL(`file://${join(CONSUMER, 'node_modules', '@phensley', 'cldr', 'dist', 'manifest.js')}`));
-  assert((man as { manifest: { locales: string[] } }).manifest.locales.length === 11, 'node resolution of ./manifest works');
+  const manLocales = (man as { manifest: { locales: string[] } }).manifest.locales;
+  assert(manLocales.length === 766, `published manifest lists the FULL universe (got ${manLocales.length})`);
+  assert(manLocales.includes('ja') && manLocales.includes('pt'), 'full universe includes ja/pt');
   console.log('browser: blocked ✓  node: resolves ✓');
 
   // 7. installed dist hygiene

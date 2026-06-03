@@ -5,11 +5,11 @@
  * catches compiler drift — 'pnpm generate:packs:full' regenerates it
  * intentionally). Also smoke-decodes every pack.
  */
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createHash } from 'node:crypto';
-import { compileDataset, decodeLocalePack, lookupTrieValue, renderLocaleModule } from '../src/index.js';
+import { compileDataset, decodeLocalePack, lookupTrieValue } from '../src/index.js';
 import { realCldr } from '../src/dataset/real.js';
 
 const cacheDir = join(dirname(fileURLToPath(import.meta.url)), '..', '..', '..', '.cache', 'cldr', '48.2.1');
@@ -26,14 +26,26 @@ describe.skipIf(!hasCache)('full universe (766 locales)', () => {
     }
   });
 
-  test('deterministic: aggregate hash equals the committed coverage anchor', () => {
-    const aggregate = Object.keys(compiled.locale)
-      .sort()
-      .map((tag) => renderLocaleModule(tag, compiled.locale[tag]))
-      .join('\n');
-    const sha = createHash('sha256').update(aggregate).digest('hex');
+  test('deterministic: whole-tree hash equals the committed coverage anchor', () => {
+    // mirrors scripts/generate-packs-full.ts: hash over every generated
+    // file (packs + deltas + layout + zones), path-ordered
+    const sha = createHash('sha256');
+    const fullDir = join(dirname(fileURLToPath(import.meta.url)), '../generated-full');
+    const walk = (dir: string, prefix: string): void => {
+      for (const entry of readdirSync(dir, { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : 1))) {
+        const rel = prefix + entry.name;
+        if (entry.isDirectory()) {
+          walk(join(dir, entry.name), rel + '/');
+        } else {
+          sha.update(rel + '\0');
+          sha.update(readFileSync(join(dir, entry.name)));
+        }
+      }
+    };
+    walk(fullDir, '');
     const anchor = readFileSync(ANCHOR, 'utf8').trim();
-    expect(sha, `coverage anchor stale — run pnpm generate:packs:full (anchor: ${anchor})`).toBe(anchor);
+    const shaHex = sha.digest('hex');
+    expect(shaHex, `coverage anchor stale — run pnpm generate:packs:full (anchor: ${anchor})`).toBe(anchor);
   });
 
   test('every full pack decodes; spot lookups resolve', () => {

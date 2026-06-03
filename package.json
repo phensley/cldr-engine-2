@@ -16,6 +16,7 @@
     "check:generated": "node scripts/check-generated.mjs",
     "bundle-proof": "tsx scripts/bundle-proof.ts",
     "build": "tsx scripts/build.ts",
+    "build:full": "tsx scripts/build-full.ts",
     "packaging-check": "pnpm build && pnpm depcruise && tsx scripts/check-packages.ts",
     "depcruise": "depcruise packages internal --config .dependency-cruiser.cjs",
     "pretest": "pnpm build",
